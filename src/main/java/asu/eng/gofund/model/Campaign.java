@@ -1,6 +1,8 @@
 package asu.eng.gofund.model;
 
+import asu.eng.gofund.util.DatabaseUtil;
 import jakarta.persistence.*;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 
 import java.util.List;
 
@@ -19,6 +21,8 @@ abstract public class Campaign {
     private Long currency;
     private Long category;
     private Long starterId;
+    @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments;
     @ManyToMany
     @JoinTable(name = "address_id",
             joinColumns = @JoinColumn(name = "campaign_id"),
@@ -32,7 +36,7 @@ abstract public class Campaign {
 
     public Campaign(Long id, String name, String description, String imageUrl,
                     CampaignStatus campaignStatus, Currency currency,
-                    Long category, Long starterId, String bankAccountNumber, List<Address> addresses) {
+                    Long category, Long starterId, String bankAccountNumber, List<Address> addresses, List<Comment> comments) {
 
         this.id = id;
         this.name = name;
@@ -44,11 +48,12 @@ abstract public class Campaign {
         this.starterId = starterId;
         this.bankAccountNumber = bankAccountNumber;
         this.addresses = addresses;
+        this.comments = comments;
     }
 
     public Campaign(String name, String description, String imageUrl,
                     CampaignStatus campaignStatus, Currency currency,
-                    Long category, Long starterId, String bankAccountNumber, List<Address> addresses) {
+                    Long category, Long starterId, String bankAccountNumber, List<Address> addresses, List<Comment> comments) {
         this.name = name;
         this.description = description;
         this.imageUrl = imageUrl;
@@ -58,6 +63,8 @@ abstract public class Campaign {
         this.starterId = starterId;
         this.bankAccountNumber = bankAccountNumber;
         this.addresses = addresses;
+        this.comments = comments;
+
     }
 
 
@@ -164,4 +171,35 @@ abstract public class Campaign {
     public void setAddresses(List<Address> addresses) {
         this.addresses = addresses;
     }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
+    public int addComment(Comment comment) {
+        comments.add(comment);
+        // insert comment into DB
+        String query = "INSERT INTO comment (id, is_deleted, content, author_id, timestamp, campaign_id, parent_comment_id, edited) VALUES (?,?,?,?,?,?,?,?)";
+        return DatabaseUtil.jdbcTemplate.update(query,
+                comment.getId(),
+                comment.isDeleted(),
+                comment.getContent(),
+                comment.getAuthor().getId(),
+                comment.getTimestamp(),
+                comment.getCampaign().getId(),
+                comment.getParentComment().getId(),
+                comment.isEdited());
+    }
+
+    public List<Comment> getAllComments() {
+        String sql = "SELECT * FROM comments WHERE campaign_id = " + id;
+        comments = DatabaseUtil.jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Comment.class));
+        return comments;
+    }
+
+
 }
