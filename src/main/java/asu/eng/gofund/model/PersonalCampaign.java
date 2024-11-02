@@ -73,7 +73,7 @@ public class PersonalCampaign extends Campaign {
         String sql = "INSERT INTO personalCampaign (name, description, image_url, status, currency, category, starter_id, \n" +
                 "bank_account_number,addresses, start_date, end_date, target_amount, current_amount)\n" +
                 "VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);\n";
-        return DatabaseUtil.jdbcTemplate.update(sql, this.getName(), this.getDescription(),
+        return DatabaseUtil.getConnection().update(sql, this.getName(), this.getDescription(),
                 this.getImageUrl(), this.getStatus(), this.getCurrency(), this.getCategory(), this.getStarterId(),
                 this.getBankAccountNumber(), getAddresses(), getStartDate(), getEndDate(), getTargetAmount(), getCurrentAmount());
 

@@ -14,7 +14,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
+    private String username;
     private String email;
     private String password;
 
@@ -23,14 +23,14 @@ public class User {
     }
 
     public User(String name, String email, String password) {
-        this.name = name;
+        this.username = name;
         this.email = email;
         this.password = password;
     }
 
     public User(Long id, String name, String email, String password) {
         this.id = id;
-        this.name = name;
+        this.username = name;
         this.email = email;
         this.password = password;
     }
@@ -44,12 +44,12 @@ public class User {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getUsername() {
+        return username;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUsername(String name) {
+        this.username = name;
     }
 
     public String getEmail() {
@@ -72,7 +72,7 @@ public class User {
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
+                ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 '}';
@@ -82,27 +82,37 @@ public class User {
 
     public static List<User> getAllUsers() {
         String sql = "SELECT * FROM users";
-        return DatabaseUtil.jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(User.class));
+        return DatabaseUtil.getConnection().query(sql, new BeanPropertyRowMapper<>(User.class));
     }
 
     public static User getUserById(Long id) {
         String sql = "SELECT * FROM users WHERE id = ?";
-        return DatabaseUtil.jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(User.class), id);
+        return DatabaseUtil.getConnection().queryForObject(sql, new BeanPropertyRowMapper<>(User.class), id);
+    }
+
+    public static User getUserByUsernameAndPassword(String username, String password) {
+        String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+        return DatabaseUtil.getConnection().queryForObject(sql, new BeanPropertyRowMapper<>(User.class), username, password);
+    }
+
+    public static User getUserByEmailAndPassword(String email, String password) {
+        String sql = "SELECT * FROM users WHERE email = ? AND password = ?";
+        return DatabaseUtil.getConnection().queryForObject(sql, new BeanPropertyRowMapper<>(User.class), email, password);
     }
 
     public int saveUser() {
-        String sql = "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
-        return DatabaseUtil.jdbcTemplate.update(sql, this.getName(), this.getEmail(), this.getPassword());
+        String sql = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
+        return DatabaseUtil.getConnection().update(sql, this.getUsername(), this.getEmail(), this.getPassword());
     }
 
     public int updateUser() {
-        String sql = "UPDATE users SET name = ?, email = ?, password = ?, WHERE id = ?";
-        return DatabaseUtil.jdbcTemplate.update(sql, this.getName(), this.getEmail(), this.getId(), this.getPassword());
+        String sql = "UPDATE users SET username = ?, email = ?, password = ?, WHERE id = ?";
+        return DatabaseUtil.getConnection().update(sql, this.getUsername(), this.getEmail(), this.getId(), this.getPassword());
     }
 
     public static int deleteUserById(Long id) {
         String sql = "DELETE FROM users WHERE id = ?";
-        return DatabaseUtil.jdbcTemplate.update(sql, id);
+        return DatabaseUtil.getConnection().update(sql, id);
     }
 
 }

@@ -18,7 +18,7 @@ public class UserView {
     public List<User> getAllUsers() {
         List<User> users = userController.selectAllUsers();
         for (User user : users) {
-            System.out.println(user.getId() + " " + user.getName() + " " + user.getEmail() + " " + user.getPassword());
+            System.out.println(user.getId() + " " + user.getUsername() + " " + user.getEmail() + " " + user.getPassword());
         }
         return users;
     }
@@ -26,7 +26,7 @@ public class UserView {
     @GetMapping("/{id}")
     public User getUser(@PathVariable Long id) {
         User user = userController.getUser(id);
-        System.out.println(user.getId() + " " + user.getName() + " " + user.getEmail() + " " + user.getPassword());
+        System.out.println(user.getId() + " " + user.getUsername() + " " + user.getEmail() + " " + user.getPassword());
         return user;
     }
 

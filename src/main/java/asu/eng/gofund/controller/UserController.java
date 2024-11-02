@@ -28,6 +28,14 @@ public class UserController {
         return User.getUserById(id);
     }
 
+    public static User getUserByUsernameAndPassword(String username, String password) {
+        return User.getUserByUsernameAndPassword(username, password);
+    }
+
+    public static User getUserByEmailAndPassword(String email, String password) {
+        return User.getUserByEmailAndPassword(email, password);
+    }
+
     public List<User> selectAllUsers() {
         return User.getAllUsers();
     }

@@ -68,7 +68,7 @@ public class Address {
 
     public int saveAddress() {
         String sql = "INSERT INTO address (name, parent_id) VALUES (?, ?)";
-        return DatabaseUtil.jdbcTemplate.update(sql, this.getName(), this.getParentId());
+        return DatabaseUtil.getConnection().update(sql, this.getName(), this.getParentId());
 
     }
 }
