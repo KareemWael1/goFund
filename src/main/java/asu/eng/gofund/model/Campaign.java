@@ -1,7 +1,6 @@
 package asu.eng.gofund.model;
 
 import jakarta.persistence.*;
-
 import java.util.List;
 
 @Entity
@@ -19,6 +18,8 @@ abstract public class Campaign {
     private Long currency;
     private Long category;
     private Long starterId;
+    @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments;
     @ManyToMany
     @JoinTable(name = "address_id",
             joinColumns = @JoinColumn(name = "campaign_id"),
@@ -58,6 +59,7 @@ abstract public class Campaign {
         this.starterId = starterId;
         this.bankAccountNumber = bankAccountNumber;
         this.addresses = addresses;
+
     }
 
 
@@ -164,4 +166,6 @@ abstract public class Campaign {
     public void setAddresses(List<Address> addresses) {
         this.addresses = addresses;
     }
+
+
 }
