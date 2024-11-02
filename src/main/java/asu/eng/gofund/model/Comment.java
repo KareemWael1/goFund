@@ -49,6 +49,24 @@ public class Comment {
         this.edited = edited;
     }
 
+    public Comment(boolean isDeleted,
+                   String content,
+                   Person author,
+                   Date timestamp,
+                   Campaign campaign,
+                   Comment parentComment,
+                   List<Comment> replies,
+                   boolean edited) {
+        this.isDeleted = isDeleted;
+        this.content = content;
+        this.author = author;
+        this.timestamp = timestamp;
+        this.campaign = campaign;
+        this.parentComment = parentComment;
+        this.replies = replies;
+        this.edited = edited;
+    }
+
     public long getId() {
         return id;
     }
