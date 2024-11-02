@@ -50,7 +50,7 @@ abstract public class Campaign {
 
     public Campaign(String name, String description, String imageUrl,
                     CampaignStatus campaignStatus, Currency currency,
-                    Long category, Long starterId, String bankAccountNumber, List<Address> addresses) {
+                    Long category, Long starterId, String bankAccountNumber, List<Address> addresses, List<Comment> comments) {
         this.name = name;
         this.description = description;
         this.imageUrl = imageUrl;
@@ -60,6 +60,7 @@ abstract public class Campaign {
         this.starterId = starterId;
         this.bankAccountNumber = bankAccountNumber;
         this.addresses = addresses;
+        this.comments = comments;
 
     }
 
