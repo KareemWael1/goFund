@@ -169,5 +169,12 @@ abstract public class Campaign {
         this.addresses = addresses;
     }
 
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
 
 }
