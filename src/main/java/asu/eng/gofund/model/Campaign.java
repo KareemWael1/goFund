@@ -2,6 +2,8 @@ package asu.eng.gofund.model;
 
 import asu.eng.gofund.util.DatabaseUtil;
 import jakarta.persistence.*;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+
 import java.util.List;
 
 @Entity
@@ -193,6 +195,11 @@ abstract public class Campaign {
                 comment.isEdited());
     }
 
+    public List<Comment> getAllComments() {
+        String sql = "SELECT * FROM comments WHERE campaign_id = " + id;
+        comments = DatabaseUtil.jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Comment.class));
+        return comments;
+    }
 
 
 }
