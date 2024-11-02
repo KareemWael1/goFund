@@ -177,4 +177,10 @@ abstract public class Campaign {
         this.comments = comments;
     }
 
+    public void addComment(Comment comment) {
+        comments.add(comment);
+    }
+
+    
+
 }
