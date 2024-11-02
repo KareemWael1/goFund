@@ -1,5 +1,6 @@
 package asu.eng.gofund.model;
 
+import asu.eng.gofund.util.DatabaseUtil;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -177,10 +178,21 @@ abstract public class Campaign {
         this.comments = comments;
     }
 
-    public void addComment(Comment comment) {
+    public int addComment(Comment comment) {
         comments.add(comment);
+        // insert comment into DB
+        String query = "INSERT INTO comment (id, is_deleted, content, author_id, timestamp, campaign_id, parent_comment_id, edited) VALUES (?,?,?,?,?,?,?,?)";
+        return DatabaseUtil.jdbcTemplate.update(query,
+                comment.getId(),
+                comment.isDeleted(),
+                comment.getContent(),
+                comment.getAuthor().getId(),
+                comment.getTimestamp(),
+                comment.getCampaign().getId(),
+                comment.getParentComment().getId(),
+                comment.isEdited());
     }
 
-    
+
 
 }
