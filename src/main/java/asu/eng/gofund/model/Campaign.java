@@ -184,7 +184,7 @@ abstract public class Campaign {
         comments.add(comment);
         // insert comment into DB
         String query = "INSERT INTO comment (id, is_deleted, content, author_id, timestamp, campaign_id, parent_comment_id, edited) VALUES (?,?,?,?,?,?,?,?)";
-        return DatabaseUtil.jdbcTemplate.update(query,
+        return DatabaseUtil.getConnection().update(query,
                 comment.getId(),
                 comment.isDeleted(),
                 comment.getContent(),
@@ -197,7 +197,7 @@ abstract public class Campaign {
 
     public List<Comment> getAllComments() {
         String sql = "SELECT * FROM comments WHERE campaign_id = " + id;
-        comments = DatabaseUtil.jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Comment.class));
+        comments = DatabaseUtil.getConnection().query(sql, new BeanPropertyRowMapper<>(Comment.class));
         return comments;
     }
 
