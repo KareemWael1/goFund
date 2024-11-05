@@ -8,10 +8,9 @@ import java.util.List;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@Table(name = "campaign")
 abstract public class Campaign {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "campaign_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "campaign_id_seq")
     private Long id;
     private boolean isDeleted;
     private String name;
@@ -24,7 +23,7 @@ abstract public class Campaign {
     @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
     @ManyToMany
-    @JoinTable(name = "address_id",
+    @JoinTable(name = "address_campaign",
             joinColumns = @JoinColumn(name = "campaign_id"),
             inverseJoinColumns = @JoinColumn(name = "address_id")
     )
@@ -51,9 +50,10 @@ abstract public class Campaign {
         this.comments = comments;
     }
 
-    public Campaign(String name, String description, String imageUrl,
+    public Campaign(boolean isDeleted, String name, String description, String imageUrl,
                     CampaignStatus campaignStatus, Currency currency,
                     Long category, Long starterId, String bankAccountNumber, List<Address> addresses, List<Comment> comments) {
+        this.isDeleted = isDeleted;
         this.name = name;
         this.description = description;
         this.imageUrl = imageUrl;

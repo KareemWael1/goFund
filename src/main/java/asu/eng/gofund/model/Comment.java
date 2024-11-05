@@ -18,7 +18,7 @@ public class Comment {
     private Person author;
     private Date timestamp;
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "campaign_id")
     private Campaign campaign;
     @ManyToOne
     @JoinColumn(name = "parent_id")

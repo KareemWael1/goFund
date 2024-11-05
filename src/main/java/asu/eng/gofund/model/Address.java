@@ -52,16 +52,16 @@ public class Address {
         this.parentId = parentId;
     }
 
-    public String getCountry() {
+    public String Country() {
         // TODO: Implement this method
         return "USA";
     }
 
-    public String getCity() {
+    public String City() {
         // TODO: Implement this method
         return "New York";
     }
-    public String getFullAddress() {
+    public String FullAddress() {
         // TODO: Implement this method
         return "123 Main St, New York, NY 10001";
     }

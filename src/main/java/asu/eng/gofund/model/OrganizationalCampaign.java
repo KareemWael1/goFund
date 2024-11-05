@@ -1,7 +1,6 @@
 package asu.eng.gofund.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.util.List;
 
@@ -14,9 +13,11 @@ public class OrganizationalCampaign extends Campaign {
         super();
     }
 
-    public OrganizationalCampaign(Long id, String name, String description, String imageUrl,
+    public OrganizationalCampaign(boolean isDeleted, String name, String description, String imageUrl,
                                   CampaignStatus status, Currency currency, Long category, Long starterId,
-                                  String bankAccountNumber, List<Address> addresses) {
-        super(id, name, description, imageUrl, status, currency, category, starterId, bankAccountNumber,addresses);
+                                  String bankAccountNumber, List<Address> addresses, List<Comment> comments) {
+        super(isDeleted, name, description, imageUrl, status, currency, category, starterId, bankAccountNumber, addresses, comments);
     }
+
+
 }
