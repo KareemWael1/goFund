@@ -13,6 +13,11 @@ public class FawryPayment implements IPaymentStrategy{
         fawryAccount = paymentInfo.get("fawryAccount");
         fawryPassword = paymentInfo.get("fawryPassword");
 
+        if (amount <= 0) {
+            System.out.println("Invalid payment amount");
+            return false;
+        }
+
         // Payment processing logic
         System.out.println("Fawry Payment Successful");
         return true;

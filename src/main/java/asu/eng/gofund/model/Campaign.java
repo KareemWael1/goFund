@@ -20,8 +20,6 @@ abstract public class Campaign {
     private Long currency;
     private Long category;
     private Long starterId;
-//    @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Comment> comments;
     @ManyToMany
     @JoinTable(name = "address_campaign",
             joinColumns = @JoinColumn(name = "campaign_id"),
@@ -29,13 +27,18 @@ abstract public class Campaign {
     )
     private List<Address> addresses;
     private String bankAccountNumber;
+    @ManyToOne
+    @JoinColumn(name = "location_id")
+    private Address location;
+    @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments;
 
     public Campaign() {
     }
 
     public Campaign(Long id, String name, String description, String imageUrl,
                     CampaignStatus campaignStatus, Currency currency,
-                    Long category, Long starterId, String bankAccountNumber, List<Address> addresses, List<Comment> comments) {
+                    Long category, Long starterId, String bankAccountNumber, List<Address> addresses, List<Comment> comments, Address location) {
 
         this.id = id;
         this.name = name;
@@ -47,12 +50,13 @@ abstract public class Campaign {
         this.starterId = starterId;
         this.bankAccountNumber = bankAccountNumber;
         this.addresses = addresses;
-//        this.comments = comments;
+        this.location = location;
+        this.comments = comments;
     }
 
     public Campaign(boolean isDeleted, String name, String description, String imageUrl,
                     CampaignStatus campaignStatus, Currency currency,
-                    Long category, Long starterId, String bankAccountNumber, List<Address> addresses, List<Comment> comments) {
+                    Long category, Long starterId, String bankAccountNumber, List<Address> addresses, List<Comment> comments, Address location) {
         this.isDeleted = isDeleted;
         this.name = name;
         this.description = description;
@@ -63,10 +67,10 @@ abstract public class Campaign {
         this.starterId = starterId;
         this.bankAccountNumber = bankAccountNumber;
         this.addresses = addresses;
-//        this.comments = comments;
+        this.location = location;
+        this.comments = comments;
 
     }
-
 
     public boolean refundDonation(Long donationDetailsId) {
         //TODO: Implement this method
@@ -155,7 +159,6 @@ abstract public class Campaign {
         isDeleted = deleted;
     }
 
-
     public String getBankAccountNumber() {
         return bankAccountNumber;
     }
@@ -172,27 +175,31 @@ abstract public class Campaign {
         this.addresses = addresses;
     }
 
-//    public List<Comment> getComments() {
-//        return comments;
-//    }
-//
-//    public void setComments(List<Comment> comments) {
-//        this.comments = comments;
-//    }
-//
-//    public int addComment(Comment comment) {
-//        comments.add(comment);
-//        // insert comment into DB
-//        String query = "INSERT INTO comment (id, is_deleted, content, author_id, timestamp, campaign_id, parent_comment_id, edited) VALUES (?,?,?,?,?,?,?,?)";
-//        return DatabaseUtil.getConnection().update(query,
-//                comment.getId(),
-//                comment.isDeleted(),
-//                comment.getContent(),
-//                comment.getAuthor().getId(),
-//                comment.getTimestamp(),
-//                comment.getCampaignId(),
-//                comment.getParentComment().getId(),
-//                comment.isEdited());
-//    }
+    public Address getLocation() {
+        return location;
+    }
 
+    public void setLocation(Address location) {
+        this.location = location;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
+    public boolean addDonor(Donor donor) {
+        return false;
+    }
+
+    public List<Donor> listDonors() {
+        return null;
+    }
+
+    public List<Comment> listComments() {
+        return comments;
+    }
 }
