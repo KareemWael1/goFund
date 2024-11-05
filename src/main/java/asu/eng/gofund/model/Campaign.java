@@ -8,7 +8,7 @@ import java.util.List;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-abstract public class Campaign {
+public class Campaign {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "campaign_id_seq")
     private Long id;
@@ -16,9 +16,9 @@ abstract public class Campaign {
     private String name;
     private String description;
     private String imageUrl;
-    private Long status;
-    private Long currency;
-    private Long category;
+    private Long status = 0L;
+    private Long currency = 0L;
+    private Long category = 0L;
     private Long starterId;
 //    @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<Comment> comments;
@@ -31,6 +31,11 @@ abstract public class Campaign {
     private String bankAccountNumber;
 
     public Campaign() {
+    }
+
+    public Campaign(String name, String description) {
+        this.name = name;
+        this.description = description;
     }
 
     public Campaign(Long id, String name, String description, String imageUrl,
