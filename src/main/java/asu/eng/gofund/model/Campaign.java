@@ -20,8 +20,8 @@ abstract public class Campaign {
     private Long currency;
     private Long category;
     private Long starterId;
-    @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments;
+//    @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Comment> comments;
     @ManyToMany
     @JoinTable(name = "address_campaign",
             joinColumns = @JoinColumn(name = "campaign_id"),
@@ -47,7 +47,7 @@ abstract public class Campaign {
         this.starterId = starterId;
         this.bankAccountNumber = bankAccountNumber;
         this.addresses = addresses;
-        this.comments = comments;
+//        this.comments = comments;
     }
 
     public Campaign(boolean isDeleted, String name, String description, String imageUrl,
@@ -63,7 +63,7 @@ abstract public class Campaign {
         this.starterId = starterId;
         this.bankAccountNumber = bankAccountNumber;
         this.addresses = addresses;
-        this.comments = comments;
+//        this.comments = comments;
 
     }
 
@@ -172,34 +172,27 @@ abstract public class Campaign {
         this.addresses = addresses;
     }
 
-    public List<Comment> getComments() {
-        return comments;
-    }
-
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
-    }
-
-    public int addComment(Comment comment) {
-        comments.add(comment);
-        // insert comment into DB
-        String query = "INSERT INTO comment (id, is_deleted, content, author_id, timestamp, campaign_id, parent_comment_id, edited) VALUES (?,?,?,?,?,?,?,?)";
-        return DatabaseUtil.getConnection().update(query,
-                comment.getId(),
-                comment.isDeleted(),
-                comment.getContent(),
-                comment.getAuthor().getId(),
-                comment.getTimestamp(),
-                comment.getCampaign().getId(),
-                comment.getParentComment().getId(),
-                comment.isEdited());
-    }
-
-    public List<Comment> getAllComments() {
-        String sql = "SELECT * FROM comments WHERE campaign_id = " + id;
-        comments = DatabaseUtil.getConnection().query(sql, new BeanPropertyRowMapper<>(Comment.class));
-        return comments;
-    }
-
+//    public List<Comment> getComments() {
+//        return comments;
+//    }
+//
+//    public void setComments(List<Comment> comments) {
+//        this.comments = comments;
+//    }
+//
+//    public int addComment(Comment comment) {
+//        comments.add(comment);
+//        // insert comment into DB
+//        String query = "INSERT INTO comment (id, is_deleted, content, author_id, timestamp, campaign_id, parent_comment_id, edited) VALUES (?,?,?,?,?,?,?,?)";
+//        return DatabaseUtil.getConnection().update(query,
+//                comment.getId(),
+//                comment.isDeleted(),
+//                comment.getContent(),
+//                comment.getAuthor().getId(),
+//                comment.getTimestamp(),
+//                comment.getCampaignId(),
+//                comment.getParentComment().getId(),
+//                comment.isEdited());
+//    }
 
 }

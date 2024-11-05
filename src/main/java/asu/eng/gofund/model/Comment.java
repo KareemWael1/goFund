@@ -13,18 +13,10 @@ public class Comment {
     private long id;
     private boolean isDeleted;
     private String content;
-
-    @OneToOne
-    private Person author;
+    private Long authorId;
     private Date timestamp;
-    @ManyToOne
-    @JoinColumn(name = "campaign_id")
-    private Campaign campaign;
-    @ManyToOne
-    @JoinColumn(name = "parent_id")
-    private Comment parentComment;
-    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> replies;
+    private Long campaignId;
+    private Long parentCommentId;
     private boolean edited;
 
     public Comment(){}
@@ -32,38 +24,35 @@ public class Comment {
     public Comment(long id,
                    boolean isDeleted,
                    String content,
-                   Person author,
+                   Long authorId,
                    Date timestamp,
-                   Campaign campaign,
-                   Comment parentComment,
-                   List<Comment> replies,
+                   Long campaignId,
+                   Long parentCommentId,
                    boolean edited) {
         this.id = id;
         this.isDeleted = isDeleted;
         this.content = content;
-        this.author = author;
+        this.authorId = authorId;
         this.timestamp = timestamp;
-        this.campaign = campaign;
-        this.parentComment = parentComment;
-        this.replies = replies;
+        this.campaignId = campaignId;
+        this.parentCommentId = parentCommentId;
         this.edited = edited;
     }
 
     public Comment(boolean isDeleted,
                    String content,
-                   Person author,
+                   Long authorId,
                    Date timestamp,
-                   Campaign campaign,
-                   Comment parentComment,
-                   List<Comment> replies,
+                   Long campaignId,
+                   Long parentCommentId,
                    boolean edited) {
         this.isDeleted = isDeleted;
         this.content = content;
-        this.author = author;
+        this.authorId = authorId;
         this.timestamp = timestamp;
-        this.campaign = campaign;
-        this.parentComment = parentComment;
-        this.replies = replies;
+        this.campaignId = campaignId;
+        this.parentCommentId = parentCommentId;
+
         this.edited = edited;
     }
 
@@ -91,12 +80,12 @@ public class Comment {
         this.content = content;
     }
 
-    public Person getAuthor() {
-        return author;
+    public Long getAuthorId() {
+        return authorId;
     }
 
-    public void setAuthor(Person author) {
-        this.author = author;
+    public void setAuthorId(Long authorId) {
+        this.authorId = authorId;
     }
 
     public Date getTimestamp() {
@@ -107,29 +96,16 @@ public class Comment {
         this.timestamp = timestamp;
     }
 
-    public Campaign getCampaign() {
-        return campaign;
+
+
+    public Long getParentCommentId() {
+        return parentCommentId;
     }
 
-    public void setCampaign(Campaign campaign) {
-        this.campaign = campaign;
+    public void setParentComment(Long parentCommentId) {
+        this.parentCommentId = parentCommentId;
     }
 
-    public Comment getParentComment() {
-        return parentComment;
-    }
-
-    public void setParentComment(Comment parentComment) {
-        this.parentComment = parentComment;
-    }
-
-    public List<Comment> getReplies() {
-        return replies;
-    }
-
-    public void setReplies(List<Comment> replies) {
-        this.replies = replies;
-    }
 
     public boolean isEdited() {
         return edited;
@@ -156,5 +132,15 @@ public class Comment {
     public boolean deleteCommentById(long id){
         //TODO add some fancy sql here
         return true;
+    }
+
+
+
+    public Long getCampaignId() {
+        return campaignId;
+    }
+
+    public void setCampaignId(Long campaignId) {
+        this.campaignId = campaignId;
     }
 }

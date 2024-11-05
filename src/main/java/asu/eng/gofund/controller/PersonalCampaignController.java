@@ -1,7 +1,7 @@
 package asu.eng.gofund.controller;
 
 import asu.eng.gofund.model.PersonalCampaign;
-import asu.eng.gofund.repo.CampaignRepo;
+import asu.eng.gofund.repo.PersonalCampaignRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -11,13 +11,13 @@ import java.util.List;
 public class PersonalCampaignController {
 
     @Autowired
-    private CampaignRepo CampaignRepo;
+    private PersonalCampaignRepo PersonalCampaignRepo;
 
     public PersonalCampaignController() {
     }
 
     public PersonalCampaign createPersonalCampaign(PersonalCampaign personalCampaign) {
-        return CampaignRepo.save(personalCampaign);
+        return PersonalCampaignRepo.save(personalCampaign);
     }
 
     public int deletePersonalCampaign(Long id) {
@@ -29,12 +29,12 @@ public class PersonalCampaignController {
     }
 
     public List<PersonalCampaign> getAllPersonalCampaigns() {
-        return CampaignRepo.findAll();
+        return PersonalCampaignRepo.findAll();
 //        return PersonalCampaign.getAllPersonalCampaigns();
     }
 
     public Long updatePersonalCampaign(PersonalCampaign personalCampaign) {
-        return CampaignRepo.save(personalCampaign).getId();
+        return PersonalCampaignRepo.save(personalCampaign).getId();
 //        return PersonalCampaign.updatePersonalCampaign(personalCampaign);
     }
 }
