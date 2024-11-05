@@ -5,6 +5,10 @@ import asu.eng.gofund.repo.CampaignRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import asu.eng.gofund.repo.CommentRepo;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -19,7 +23,9 @@ public class CommentController {
     public CommentController() {
     }
 
-    public Comment createComment(Comment comment) {
+
+    @PostMapping
+    public Comment createComment(@RequestBody Comment comment) {
         Long id = comment.getCampaignId();
         try {
             campaignRepo.findById(id);
@@ -30,10 +36,13 @@ public class CommentController {
         }
 
         return commentRepo.save(comment);
+
     }
 
-
-    public List<Comment> getCommentReplies(Long id) {
+    @GetMapping("/{id}")
+    public List<Comment> getCommentReplies(@PathVariable Long id) {
         return commentRepo.findByParentCommentId(id);
     }
+
+
 }
