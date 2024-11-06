@@ -13,7 +13,7 @@ public class FacebookLogin implements ILoginStrategy {
     @Override
     public User login(String email, String password) {
         User user = User.getUserByUsernameAndPassword(email, password);
-        if(user.getLoginStrategy().equals(getStrategyName())) {
+        if(user != null && user.getLoginStrategy().equals(getStrategyName())) {
             return user;
         }
         return null;
