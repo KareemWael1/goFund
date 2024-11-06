@@ -1,5 +1,7 @@
 // FilterByEndDate.java
-package asu.eng.gofund.model;
+package asu.eng.gofund.model.Filtering;
+
+import asu.eng.gofund.model.Campaign;
 
 import java.util.Date;
 import java.util.List;

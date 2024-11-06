@@ -1,11 +1,12 @@
 package asu.eng.gofund.controller;
 
 import asu.eng.gofund.model.*;
+import asu.eng.gofund.model.Filtering.*;
+import asu.eng.gofund.model.Sorting.*;
 import asu.eng.gofund.repo.CampaignRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 import java.util.List;
@@ -77,32 +78,33 @@ public class CampaignController {
 
         List<Campaign> campaigns = (List<Campaign>) campaignRepo.findAll();
 
+        CampaignFilterer campaignFilterer = new CampaignFilterer(null);
 
         if (filterCategory != null) {
-            ICampaignFilteringStrategy filteringStrategy = new FilterByCategory(filterCategory);
-            campaigns = filteringStrategy.filter(campaigns);
+            campaignFilterer.setStrategy(new FilterByCategory(filterCategory));
+            campaigns = campaignFilterer.filterCampaigns(campaigns);
         }
         if (filterTitle != null) {
-            ICampaignFilteringStrategy filteringStrategy = new FilterByTitleContains(filterTitle);
-            campaigns = filteringStrategy.filter(campaigns);
+            campaignFilterer.setStrategy(new FilterByTitleContains(filterTitle));
+            campaigns = campaignFilterer.filterCampaigns(campaigns);
         }
         if (filterEndDate != null) {
-            ICampaignFilteringStrategy filteringStrategy = new FilterByEndDate(filterEndDate);
-            campaigns = filteringStrategy.filter(campaigns);
+            campaignFilterer.setStrategy(new FilterByEndDate(filterEndDate));
+            campaigns = campaignFilterer.filterCampaigns(campaigns);
         }
 
+        CampaignSorter campaignSorter = new CampaignSorter(null);
 
         if ("mostRecent".equalsIgnoreCase(sort)) {
-            ICampaignSortingStrategy sortingStrategy = new SortByMostRecent();
-            campaigns = sortingStrategy.sort(campaigns);
+            campaignSorter.setStrategy(new SortByMostRecent());
         } else if ("oldest".equalsIgnoreCase(sort)) {
-            ICampaignSortingStrategy sortingStrategy = new SortByOldest();
-            campaigns = sortingStrategy.sort(campaigns);
+            campaignSorter.setStrategy(new SortByOldest());
         } else if ("mostBacked".equalsIgnoreCase(sort)) {
-            ICampaignSortingStrategy sortingStrategy = new SortByMostBacked();
-            campaigns = sortingStrategy.sort(campaigns);
+            campaignSorter.setStrategy(new SortByMostBacked());
         }
 
+        campaigns = campaignSorter.sortCampaigns(campaigns);
+        
         return ResponseEntity.ok(campaigns);
     }
 
