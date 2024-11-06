@@ -9,11 +9,17 @@ public class DatabaseUtil {
 
     public static JdbcTemplate getConnection() {
         if (connection == null) {
-            // Database configuration from environment variables
-            String driverClassName = System.getenv("DB_DRIVER_CLASS_NAME");
-            String url = System.getenv("DB_URL");
-            String username = System.getenv("DB_USERNAME");
-            String password = System.getenv("DB_PASSWORD");
+            // Try Spring properties first, then fallback to environment variables
+            String driverClassName = System.getProperty("spring.datasource.driver-class-name");
+            String url = System.getProperty("spring.datasource.url");
+            String username = System.getProperty("spring.datasource.username");
+            String password = System.getProperty("spring.datasource.password");
+
+            // Fallback to environment variables if Spring properties are not set
+            driverClassName = driverClassName != null ? driverClassName : System.getenv("DB_DRIVER_CLASS_NAME");
+            url = url != null ? url : System.getenv("DB_URL");
+            username = username != null ? username : System.getenv("DB_USERNAME");
+            password = password != null ? password : System.getenv("DB_PASSWORD");
 
             DriverManagerDataSource dataSource = new DriverManagerDataSource();
             dataSource.setDriverClassName(driverClassName);

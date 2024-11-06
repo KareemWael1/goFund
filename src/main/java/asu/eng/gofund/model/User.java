@@ -2,6 +2,8 @@ package asu.eng.gofund.model;
 
 import asu.eng.gofund.util.DatabaseUtil;
 import jakarta.persistence.*;
+import org.springframework.boot.context.properties.bind.DefaultValue;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 
 import java.util.List;
@@ -17,22 +19,30 @@ public class User {
     private String username;
     private String email;
     private String password;
+    private String loginStrategy;
 
     // Constructors
-    public User() {
+    public User(String loginStrategy) {
+        this.loginStrategy = loginStrategy;
     }
 
-    public User(String name, String email, String password) {
+    public User(String name, String email, String password, String loginStrategy) {
         this.username = name;
         this.email = email;
         this.password = password;
+        this.loginStrategy = loginStrategy;
     }
 
-    public User(Long id, String name, String email, String password) {
+    public User(Long id, String name, String email, String password, String loginStrategy) {
         this.id = id;
         this.username = name;
         this.email = email;
         this.password = password;
+        this.loginStrategy = loginStrategy;
+    }
+
+    public User() {
+
     }
 
     // Getters and setters
@@ -68,6 +78,13 @@ public class User {
         this.password = password;
     }
 
+    public String getLoginStrategy() {
+        return loginStrategy;
+    }
+    public void setLoginStrategy(String loginStrategy) {
+        this.loginStrategy = loginStrategy;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -91,8 +108,12 @@ public class User {
     }
 
     public static User getUserByUsernameAndPassword(String username, String password) {
-        String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
-        return DatabaseUtil.getConnection().queryForObject(sql, new BeanPropertyRowMapper<>(User.class), username, password);
+        try {
+            String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+            return DatabaseUtil.getConnection().queryForObject(sql, new BeanPropertyRowMapper<>(User.class), username, password);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     public static User getUserByEmailAndPassword(String email, String password) {

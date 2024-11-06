@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GoFund - Home</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="/">GoFund</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item" th:if="${user}">
+                    <a class="nav-link">Welcome <th:block th:text="${user.getUsername()}"></th:block> <span class="badge bg-secondary" th:text="${user.getLoginStrategy()}"></span></a>
+                </li>
+                <li class="nav-item" th:if="${user}">
+                    <a class="nav-link" href="/dashboard">Dashboard</a>
+                </li>
+                <li class="nav-item" th:if="${user}">
+                    <a class="nav-link" href="/users/logout">Logout</a>
+                </li>
+                <li class="nav-item" th:unless="${user}">
+                    <a class="nav-link" href="/users/login">Login</a>
+                </li>
+                <li class="nav-item" th:unless="${user}">
+                    <a class="nav-link" href="/users/register">Register</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8">
+            <h1>Welcome to GoFund</h1>
+            <p class="lead">Support causes you care about and make a difference.</p>
+
+            <div class="row mt-4">
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Featured Campaign</h5>
+                            <p class="card-text">Help support this amazing cause.</p>
+                            <a href="#" class="btn btn-primary">Learn More</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Recent Campaign</h5>
+                            <p class="card-text">Join others in making an impact.</p>
+                            <a href="#" class="btn btn-primary">Learn More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Start a Campaign</h5>
+                    <p class="card-text">Create your own fundraising campaign today.</p>
+                    <a href="/campaigns/create" class="btn btn-success w-100">Create Campaign</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
