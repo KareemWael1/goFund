@@ -4,11 +4,12 @@ import asu.eng.gofund.util.DatabaseUtil;
 import jakarta.persistence.*;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 
+import java.util.Date;
 import java.util.List;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-abstract public class Campaign {
+public class Campaign {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "campaign_id_seq")
     private Long id;
@@ -16,10 +17,13 @@ abstract public class Campaign {
     private String name;
     private String description;
     private String imageUrl;
-    private Long status;
-    private Long currency;
-    private Long category;
+    private Long status = 0L;
+    private Long currency = 0L;
+    private Long category = 0L;
     private Long starterId;
+    private Date startDate;
+    private Date endDate;
+    private Long currentAmount;
 //    @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<Comment> comments;
     @ManyToMany
@@ -33,9 +37,14 @@ abstract public class Campaign {
     public Campaign() {
     }
 
+    public Campaign(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
+
     public Campaign(Long id, String name, String description, String imageUrl,
                     CampaignStatus campaignStatus, Currency currency,
-                    Long category, Long starterId, String bankAccountNumber, List<Address> addresses, List<Comment> comments) {
+                    Long category, Long starterId, String bankAccountNumber, Date startDate, Date endDate, Long currentAmount, List<Address> addresses, List<Comment> comments) {
 
         this.id = id;
         this.name = name;
@@ -47,12 +56,15 @@ abstract public class Campaign {
         this.starterId = starterId;
         this.bankAccountNumber = bankAccountNumber;
         this.addresses = addresses;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.currentAmount = currentAmount;
 //        this.comments = comments;
     }
 
     public Campaign(boolean isDeleted, String name, String description, String imageUrl,
                     CampaignStatus campaignStatus, Currency currency,
-                    Long category, Long starterId, String bankAccountNumber, List<Address> addresses, List<Comment> comments) {
+                    Long category, Long starterId, String bankAccountNumber,  Date startDate, Date endDate, Long currentAmount, List<Address> addresses, List<Comment> comments) {
         this.isDeleted = isDeleted;
         this.name = name;
         this.description = description;
@@ -63,10 +75,36 @@ abstract public class Campaign {
         this.starterId = starterId;
         this.bankAccountNumber = bankAccountNumber;
         this.addresses = addresses;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.currentAmount = currentAmount;
 //        this.comments = comments;
 
     }
 
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public Long getCurrentAmount() {
+        return currentAmount;
+    }
+
+    public void setCurrentAmount(Long currentAmount) {
+        this.currentAmount = currentAmount;
+    }
 
     public boolean refundDonation(Long donationDetailsId) {
         //TODO: Implement this method
