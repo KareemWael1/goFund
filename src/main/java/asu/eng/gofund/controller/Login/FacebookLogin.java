@@ -4,10 +4,10 @@ import asu.eng.gofund.model.User;
 import org.springframework.stereotype.Component;
 
 @Component
-public class EmailPasswordLogin implements ILoginStrategy {
+public class FacebookLogin implements ILoginStrategy {
     @Override
     public String getStrategyName() {
-        return "basic";
+        return "facebook";
     }
 
     @Override

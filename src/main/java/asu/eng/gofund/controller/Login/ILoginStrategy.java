@@ -1,7 +1,10 @@
 package asu.eng.gofund.controller.Login;
 
-import java.util.Map;
+import asu.eng.gofund.model.User;
+import asu.eng.gofund.services.JwtService;
+import asu.eng.gofund.services.CookieService;
 
 public interface ILoginStrategy {
-    boolean login(Map<String, String> credentials);
+    User login(String email, String password);
+    String getStrategyName();
 }
