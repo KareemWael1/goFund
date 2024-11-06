@@ -4,6 +4,7 @@ import asu.eng.gofund.model.*;
 import asu.eng.gofund.model.Filtering.*;
 import asu.eng.gofund.model.Sorting.*;
 import asu.eng.gofund.repo.CampaignRepo;
+import org.springframework.ui.Model;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -69,43 +70,43 @@ public class CampaignController {
 //        return ResponseEntity.ok(campaigns);
 //    }
 
-    @GetMapping("")
-    public ResponseEntity<Iterable<Campaign>> getAllCampaigns(
+    @GetMapping("/list")
+    public String getAllCampaigns(
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) CampaignCategory filterCategory,
             @RequestParam(required = false) String filterTitle,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date filterEndDate) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date filterEndDate,
+            Model model) {
 
-        List<Campaign> campaigns = (List<Campaign>) campaignRepo.findAll();
+        List<Campaign> campaigns;
 
-        CampaignFilterer campaignFilterer = new CampaignFilterer(null);
-
-        if (filterCategory != null) {
-            campaignFilterer.setStrategy(new FilterByCategory(filterCategory));
-            campaigns = campaignFilterer.filterCampaigns(campaigns);
+        if (filterCategory != null || filterTitle != null || filterEndDate != null) {
+            campaigns = campaignRepo.findByFilters(filterCategory, filterTitle, filterEndDate);
+        } else {
+            campaigns = campaignRepo.findAll();
         }
-        if (filterTitle != null) {
-            campaignFilterer.setStrategy(new FilterByTitleContains(filterTitle));
-            campaigns = campaignFilterer.filterCampaigns(campaigns);
-        }
-        if (filterEndDate != null) {
-            campaignFilterer.setStrategy(new FilterByEndDate(filterEndDate));
-            campaigns = campaignFilterer.filterCampaigns(campaigns);
-        }
-
-        CampaignSorter campaignSorter = new CampaignSorter(null);
 
         if ("mostRecent".equalsIgnoreCase(sort)) {
-            campaignSorter.setStrategy(new SortByMostRecent());
+            campaigns = campaignRepo.findAllOrderByMostRecent();
         } else if ("oldest".equalsIgnoreCase(sort)) {
-            campaignSorter.setStrategy(new SortByOldest());
+            campaigns = campaignRepo.findAllOrderByOldest();
         } else if ("mostBacked".equalsIgnoreCase(sort)) {
-            campaignSorter.setStrategy(new SortByMostBacked());
+            campaigns = campaignRepo.findAllOrderByMostBacked();
         }
 
-        campaigns = campaignSorter.sortCampaigns(campaigns);
-        
-        return ResponseEntity.ok(campaigns);
+        model.addAttribute("campaigns", campaigns);
+        return "homePage";
     }
 
+    @GetMapping("/")
+    public String homePage(Model model) {
+        List<Campaign> campaigns = campaignRepo.findAll();
+        model.addAttribute("campaigns", campaigns);
+        return "homePage";
+    }
+
+    @GetMapping("/campaigns/create")
+    public String createCampaignPage() {
+        return "createCampaignPage";
+    }
 }

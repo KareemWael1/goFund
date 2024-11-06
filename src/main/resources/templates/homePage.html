@@ -13,7 +13,7 @@
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item" th:if="${user}">
-                    <a class="nav-link">Welcome <th:block th:text="${user.getUsername()}"></th:block> <span class="badge bg-secondary" th:text="${user.getLoginStrategy()}"></span></a>
+                    <a class="nav-link">Welcome <span th:text="${user.getUsername()}"></span> <span class="badge bg-secondary" th:text="${user.getLoginStrategy()}"></span></a>
                 </li>
                 <li class="nav-item" th:if="${user}">
                     <a class="nav-link" href="/dashboard">Dashboard</a>
@@ -39,21 +39,50 @@
             <p class="lead">Support causes you care about and make a difference.</p>
 
             <div class="row mt-4">
-                <div class="col-md-6 mb-4">
+                <div class="col-md-12 mb-4">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Featured Campaign</h5>
-                            <p class="card-text">Help support this amazing cause.</p>
-                            <a href="#" class="btn btn-primary">Learn More</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Recent Campaign</h5>
-                            <p class="card-text">Join others in making an impact.</p>
-                            <a href="#" class="btn btn-primary">Learn More</a>
+                            <h5 class="card-title">Campaigns</h5>
+                            <form id="filterForm" class="mb-3" method="get" action="/home">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <select class="form-select" id="sort" name="sort">
+                                            <option value="">Sort By</option>
+                                            <option value="mostRecent">Most Recent</option>
+                                            <option value="oldest">Oldest</option>
+                                            <option value="mostBacked">Most Backed</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input type="text" class="form-control" id="filterTitle" name="filterTitle" placeholder="Filter by Title">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select class="form-select" id="filterCategory" name="filterCategory">
+                                            <option value="">Filter by Category</option>
+                                            <option value="CATEGORY1">Category 1</option>
+                                            <option value="CATEGORY2">Category 2</option>
+                                            <!-- Add more categories as needed -->
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input type="date" class="form-control" id="filterEndDate" name="filterEndDate" placeholder="Filter by End Date">
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-md-12">
+                                        <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                                    </div>
+                                </div>
+                            </form>
+                            <div id="campaignList" class="mt-4">
+                                <div th:each="campaign : ${campaigns}" class="card mb-3">
+                                    <div class="card-body">
+                                        <h5 class="card-title" th:text="${campaign.name}"></h5>
+                                        <p class="card-text" th:text="${campaign.description}"></p>
+                                        <a th:href="@{/campaign/{id}(id=${campaign.id})}" class="btn btn-primary">View Campaign</a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
