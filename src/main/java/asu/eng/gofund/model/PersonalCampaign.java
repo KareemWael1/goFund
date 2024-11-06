@@ -31,9 +31,8 @@ public class PersonalCampaign extends Campaign {
 
     public PersonalCampaign(boolean isDeleted, String name, String description, String imageUrl,
                             CampaignStatus status, Currency currency, Long category, Long starterId,
-                            String bankAccountNumber, Date startDate, Date endDate,
-                            Long targetAmount, Long currentAmount, List<Address> addresses, List<Comment> comments) {
-        super(isDeleted, name, description, imageUrl, status, currency, category, starterId, bankAccountNumber, addresses, comments);
+                            String bankAccountNumber, Date startDate, Long currentAmount, List<Address> addresses, List<Comment> comments, Date endDate) {
+        super(isDeleted, name, description, imageUrl, status, currency, category, starterId, bankAccountNumber,startDate, endDate, currentAmount, addresses, comments);
         this.startDate = startDate;
         this.endDate = endDate;
         this.targetAmount = targetAmount;

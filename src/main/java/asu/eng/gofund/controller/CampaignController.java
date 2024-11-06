@@ -1,12 +1,14 @@
 package asu.eng.gofund.controller;
 
-import asu.eng.gofund.model.Campaign;
+import asu.eng.gofund.model.*;
 import asu.eng.gofund.repo.CampaignRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -60,9 +62,47 @@ public class CampaignController {
         return campaign.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+//    @GetMapping("")
+//    public ResponseEntity<Iterable<Campaign>> getAllCampaigns() {
+//        Iterable<Campaign> campaigns = campaignRepo.findAll();
+//        return ResponseEntity.ok(campaigns);
+//    }
+
     @GetMapping("")
-    public ResponseEntity<Iterable<Campaign>> getAllCampaigns() {
-        Iterable<Campaign> campaigns = campaignRepo.findAll();
+    public ResponseEntity<Iterable<Campaign>> getAllCampaigns(
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) CampaignCategory filterCategory,
+            @RequestParam(required = false) String filterTitle,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date filterEndDate) {
+
+        List<Campaign> campaigns = (List<Campaign>) campaignRepo.findAll();
+
+
+        if (filterCategory != null) {
+            ICampaignFilteringStrategy filteringStrategy = new FilterByCategory(filterCategory);
+            campaigns = filteringStrategy.filter(campaigns);
+        }
+        if (filterTitle != null) {
+            ICampaignFilteringStrategy filteringStrategy = new FilterByTitleContains(filterTitle);
+            campaigns = filteringStrategy.filter(campaigns);
+        }
+        if (filterEndDate != null) {
+            ICampaignFilteringStrategy filteringStrategy = new FilterByEndDate(filterEndDate);
+            campaigns = filteringStrategy.filter(campaigns);
+        }
+
+
+        if ("mostRecent".equalsIgnoreCase(sort)) {
+            ICampaignSortingStrategy sortingStrategy = new SortByMostRecent();
+            campaigns = sortingStrategy.sort(campaigns);
+        } else if ("oldest".equalsIgnoreCase(sort)) {
+            ICampaignSortingStrategy sortingStrategy = new SortByOldest();
+            campaigns = sortingStrategy.sort(campaigns);
+        } else if ("mostBacked".equalsIgnoreCase(sort)) {
+            ICampaignSortingStrategy sortingStrategy = new SortByMostBacked();
+            campaigns = sortingStrategy.sort(campaigns);
+        }
+
         return ResponseEntity.ok(campaigns);
     }
 
