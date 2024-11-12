@@ -1,42 +1,45 @@
 package asu.eng.gofund.model;
 
+import asu.eng.gofund.repo.PersonalCampaignRepo;
 import asu.eng.gofund.util.DatabaseUtil;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.Id;
-import jakarta.persistence.GenerationType;
+import jakarta.persistence.*;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Entity
 @Table(name = "personalCampaign")
-public class PersonalCampaign extends Campaign {
+public class PersonalCampaign extends Campaign implements Subject {
 
-    //    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Long id;
     private Date startDate;
     private Date endDate;
     private Long targetAmount;
-    private Long currentAmount;
+    @ManyToMany
+    @JoinTable(
+            name = "subject_observer",
+            joinColumns = @JoinColumn(name = "subject_id"),
+            inverseJoinColumns = @JoinColumn(name = "observer_id")
+    )
+    private List<User> observers;
 
     public PersonalCampaign() {
         super();
+        observers = new ArrayList<>();
     }
 
 
     public PersonalCampaign(boolean isDeleted, String name, String description, String imageUrl,
-                            CampaignStatus status, Currency currency, Long category, Long starterId,
+                            CampaignStatus status, Currency currency, Long category, Long starterId, Long targetAmount,
                             String bankAccountNumber, Date startDate, Long currentAmount, List<Address> addresses, List<Comment> comments, Date endDate) {
-        super(isDeleted, name, description, imageUrl, status, currency, category, starterId, bankAccountNumber,startDate, endDate, currentAmount, addresses, comments);
+        super(isDeleted, name, description, imageUrl, status, currency, category, starterId, bankAccountNumber, startDate, endDate, currentAmount, addresses, comments);
         this.startDate = startDate;
         this.endDate = endDate;
         this.targetAmount = targetAmount;
         this.currentAmount = currentAmount;
+        observers = new ArrayList<>();
     }
 
     public static int deletePersonalCampaign(Long id) {
@@ -74,6 +77,11 @@ public class PersonalCampaign extends Campaign {
         return true;
     }
 
+    public List<User> getObservers() {
+        return observers;
+    }
+
+
     public Date getStartDate() {
         return startDate;
     }
@@ -98,13 +106,6 @@ public class PersonalCampaign extends Campaign {
         this.targetAmount = targetAmount;
     }
 
-    public Long getCurrentAmount() {
-        return currentAmount;
-    }
-
-    public void setCurrentAmount(Long currentAmount) {
-        this.currentAmount = currentAmount;
-    }
 
     public int savePersonalCampaign() {
 
@@ -182,5 +183,27 @@ public class PersonalCampaign extends Campaign {
         this.setId(campaignId);
 
         return 1; // Success
+    }
+
+    public void donate(double amount) {
+        this.currentAmount += amount;
+        notifyObservers();
+    }
+
+    @Override
+    public void registerObserver(Observer observer) {
+        observers.add((User) observer);
+    }
+
+    @Override
+    public void removeObserver(Observer observer) {
+        observers.remove((User) observer);
+    }
+
+    @Override
+    public void notifyObservers() {
+        for (Observer observer : observers) {
+            observer.update(this.getId(), this.getCurrentAmount());
+        }
     }
 }

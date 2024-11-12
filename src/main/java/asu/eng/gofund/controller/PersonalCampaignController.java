@@ -1,8 +1,12 @@
 package asu.eng.gofund.controller;
 
 import asu.eng.gofund.model.PersonalCampaign;
+import asu.eng.gofund.model.User;
 import asu.eng.gofund.repo.PersonalCampaignRepo;
+import asu.eng.gofund.repo.UserRepo;
+import org.springframework.ui.Model;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,25 +18,26 @@ public class PersonalCampaignController {
 
     @Autowired
     private PersonalCampaignRepo PersonalCampaignRepo;
+    @Autowired
+    private UserRepo userRepo;
 
     @PostMapping
     public String createPersonalCampaign(@RequestBody PersonalCampaign personalCampaign) {
         try {
             PersonalCampaign result = PersonalCampaignRepo.save(personalCampaign);
-            if (result != null) {
-                return "PersonalCampaign created successfully";
-            } else {
-                return "PersonalCampaign creation failed";
-            }
+            return "personalCampaign";
         } catch (Exception e) {
-            return "Error creating PersonalCampaign: " + e.getMessage();
+            System.out.println(e.getMessage());
+            return "error";
         }
 
     }
 
     @GetMapping
-    public List<PersonalCampaign> getAllPersonalCampaigns() {
-        return PersonalCampaignRepo.findAll();
+    public String getAllPersonalCampaigns(Model model) {
+        List<PersonalCampaign> campaigns = PersonalCampaignRepo.findAll();
+        model.addAttribute("campaigns", campaigns);
+        return "personalCampaign";
     }
 
     @GetMapping("/{id}")
@@ -44,11 +49,28 @@ public class PersonalCampaignController {
     public String updatePersonalCampaign(@RequestBody PersonalCampaign personalCampaign) {
         Long result = PersonalCampaignRepo.save(personalCampaign).getId();
         if (result == 1) {
-            return "PersonalCampaign updated successfully";
+            return "personalCampaign";
         } else {
-            return "PersonalCampaign update failed";
+            return "error";
         }
     }
+
+    @PutMapping("/{campaignId}/donate/{userId}")
+    public ResponseEntity<String> donateToCampaign(
+            @PathVariable Long campaignId,
+            @PathVariable Long userId,
+            @RequestParam double amount) {
+        // Retrieve the campaign and user from the repositories
+        PersonalCampaign campaign = PersonalCampaignRepo.findById(campaignId)
+                .orElseThrow(() -> new IllegalArgumentException("Campaign not found"));
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        // make operations on user if needed
+        campaign.donate(amount);
+        PersonalCampaignRepo.save(campaign);
+        return ResponseEntity.ok("Donation successful");
+    }
+
 
     @DeleteMapping("/{id}")
     public String deletePersonalCampaign(@PathVariable Long id) {
@@ -59,6 +81,27 @@ public class PersonalCampaignController {
             return "PersonalCampaign deletion failed";
         }
 
+    }
+
+    @PostMapping("/{campaignId}/subscribe/{userId}")
+    public ResponseEntity<String> subscribeToCampaign(
+            @PathVariable Long campaignId,
+            @PathVariable Long userId) {
+
+        // Retrieve the campaign and user from the repositories
+        PersonalCampaign campaign = PersonalCampaignRepo.findById(campaignId)
+                .orElseThrow(() -> new RuntimeException("Campaign not found"));
+
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Add the user as an observer of the campaign
+        user.subscribe(campaign);
+
+        // Save the updated campaign if needed
+        PersonalCampaignRepo.save(campaign);
+
+        return ResponseEntity.ok("User subscribed to campaign successfully");
     }
 
 }

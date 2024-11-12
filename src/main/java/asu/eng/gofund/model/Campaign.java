@@ -23,7 +23,7 @@ public class Campaign {
     private Long starterId;
     private Date startDate;
     private Date endDate;
-    private Long currentAmount;
+    protected double currentAmount;
 //    @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<Comment> comments;
     @ManyToMany
@@ -98,7 +98,7 @@ public class Campaign {
         this.endDate = endDate;
     }
 
-    public Long getCurrentAmount() {
+    public Double getCurrentAmount() {
         return currentAmount;
     }
 

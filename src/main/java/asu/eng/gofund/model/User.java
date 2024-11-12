@@ -1,8 +1,8 @@
 package asu.eng.gofund.model;
 
+import asu.eng.gofund.controller.EmailNotification;
 import asu.eng.gofund.util.DatabaseUtil;
 import jakarta.persistence.*;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 
@@ -10,7 +10,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements Observer {
 
     // User attributes
     @Id
@@ -20,11 +20,11 @@ public class User {
     private String email;
     private String password;
     private String loginStrategy;
-
+    @ManyToMany(mappedBy = "observers")
+    private List<PersonalCampaign> subjects;
     // Constructors
-    public User(String loginStrategy) {
-        this.loginStrategy = loginStrategy;
-    }
+
+
 
     public User(String name, String email, String password, String loginStrategy) {
         this.username = name;
@@ -81,6 +81,7 @@ public class User {
     public String getLoginStrategy() {
         return loginStrategy;
     }
+
     public void setLoginStrategy(String loginStrategy) {
         this.loginStrategy = loginStrategy;
     }
@@ -135,5 +136,25 @@ public class User {
         String sql = "DELETE FROM users WHERE id = ?";
         return DatabaseUtil.getConnection().update(sql, id);
     }
+
+    @Override
+    public void update(Long CampaignId, Double reachedAmount) {
+        EmailNotification.sendEmail(this.getEmail(), "Campaign Update", "The campaign with ID " +
+                CampaignId + " has reached " + reachedAmount + ".");
+    }
+
+    public void subscribe(Subject subject) {
+        subjects.add((PersonalCampaign) subject);
+        subject.registerObserver(this);
+    }
+    public void unsubscribe(Subject subject) {
+        PersonalCampaign sub = subjects.get(subjects.indexOf((PersonalCampaign) subject));
+        sub.removeObserver(this);
+        subjects.remove(sub);
+
+    }
+
+
+
 
 }
