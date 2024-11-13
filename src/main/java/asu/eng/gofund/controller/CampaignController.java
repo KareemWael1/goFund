@@ -20,7 +20,6 @@ public class CampaignController {
     @Autowired
     private CampaignRepo campaignRepo;
 
-    //Add a new campaign
     @PostMapping("")
     public ResponseEntity<Campaign> addCampaign(@RequestBody Campaign campaign) {
         Campaign savedCampaign = campaignRepo.save(campaign);

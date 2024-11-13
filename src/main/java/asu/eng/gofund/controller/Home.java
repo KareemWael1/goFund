@@ -26,7 +26,7 @@ import java.util.List;
 public class Home {
 
     @Autowired
-    private CampaignRepo campaignRepo;
+    private CampaignController campaignController;
 
     @GetMapping("/home")
     public String homePage(
@@ -40,30 +40,14 @@ public class Home {
 
 
 
+        // Call the getAllCampaigns method from CampaignController
+        String viewName = campaignController.getAllCampaigns(sort, filterCategory, filterTitle, filterEndDate, model);
 
-        List<Campaign> campaigns = (List<Campaign>) campaignRepo.findAll();
-
-
-        CampaignSorter campaignSorter = new CampaignSorter(null);
-
-        if ("mostRecent".equalsIgnoreCase(sort)) {
-            campaignSorter.setStrategy(new SortByMostRecent());
-            campaigns = campaignSorter.sortCampaigns(campaigns);
-        } else if ("oldest".equalsIgnoreCase(sort)) {
-            campaignSorter.setStrategy(new SortByOldest());
-            campaigns = campaignSorter.sortCampaigns(campaigns);
-        } else if ("mostBacked".equalsIgnoreCase(sort)) {
-            campaignSorter.setStrategy(new SortByMostBacked());
-            campaigns = campaignSorter.sortCampaigns(campaigns);
-        }
-
-
-        if(user != null) {
+        if (user != null) {
             model.addAttribute("user", user);
         }
 
-        model.addAttribute("campaigns", campaigns);
-        return "homePage";
+        return viewName;
     }
 
 }
