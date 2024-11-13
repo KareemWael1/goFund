@@ -25,29 +25,11 @@ import java.util.List;
 @RequestMapping("/")
 public class Home {
 
-    @Autowired
-    private CampaignController campaignController;
-
-    @GetMapping("/home")
-    public String homePage(
-            @RequestParam(required = false) String sort,
-            @RequestParam(required = false) CampaignCategory filterCategory,
-            @RequestParam(required = false) String filterTitle,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date filterEndDate,
-            Model model,
-            @CurrentUser User user,
-            HttpServletRequest request) {
-
-
-
-        // Call the getAllCampaigns method from CampaignController
-        String viewName = campaignController.getAllCampaigns(sort, filterCategory, filterTitle, filterEndDate, model);
-
+    @GetMapping("/")
+    public String homePage(@CurrentUser User user, Model model) {
         if (user != null) {
             model.addAttribute("user", user);
         }
-
-        return viewName;
+        return "homePage";
     }
-
 }

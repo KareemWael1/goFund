@@ -75,9 +75,9 @@ public class UserController implements ErrorController {
 
     @PostMapping("/login")
     public String loginUser(
-            @RequestParam String username,
-            @RequestParam String password,
-            @RequestParam String strategy,
+            @RequestParam(required = false, defaultValue = "") String username,
+            @RequestParam(required = false, defaultValue = "") String password,
+            @RequestParam(required = false, defaultValue = "") String strategy,
             Model model,
             HttpServletResponse response
     ) {

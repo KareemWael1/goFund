@@ -39,62 +39,11 @@
             <p class="lead">Support causes you care about and make a difference.</p>
 
             <div class="row mt-4">
-                <div class="col-md-12 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Campaigns</h5>
-                            <form id="filterForm" class="mb-3" method="get" action="/home">
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <select class="form-select" id="sort" name="sort">
-                                            <option value="">Sort By</option>
-                                            <option value="mostRecent">Most Recent</option>
-                                            <option value="oldest">Oldest</option>
-                                            <option value="mostBacked">Most Backed</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <input type="text" class="form-control" id="filterTitle" name="filterTitle" placeholder="Filter by Title">
-                                    </div>
-                                    <div class="col-md-3">
-                                        <select class="form-select" id="filterCategory" name="filterCategory">
-                                            <option value="">Filter by Category</option>
-                                            <option value="CATEGORY1">Category 1</option>
-                                            <option value="CATEGORY2">Category 2</option>
-                                            <!-- Add more categories as needed -->
-                                        </select>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <input type="date" class="form-control" id="filterEndDate" name="filterEndDate" placeholder="Filter by End Date">
-                                    </div>
-                                </div>
-                                <div class="row mt-3">
-                                    <div class="col-md-12">
-                                        <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
-                                    </div>
-                                </div>
-                            </form>
-                            <div id="campaignList" class="mt-4">
-                                <div th:each="campaign : ${campaigns}" class="card mb-3">
-                                    <div class="card-body">
-                                        <h5 class="card-title" th:text="${campaign.name}"></h5>
-                                        <p class="card-text" th:text="${campaign.description}"></p>
-                                        <a th:href="@{/campaign/{id}(id=${campaign.id})}" class="btn btn-primary">View Campaign</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="col-md-6 mb-4">
+                    <a href="/campaign/list" class="btn btn-primary w-100">View Campaigns</a>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Start a Campaign</h5>
-                    <p class="card-text">Create your own fundraising campaign today.</p>
-                    <a href="/campaigns/create" class="btn btn-success w-100">Create Campaign</a>
+                <div class="col-md-6 mb-4">
+                    <a href="/donate" class="btn btn-success w-100">Make a Donation</a>
                 </div>
             </div>
         </div>
