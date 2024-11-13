@@ -1,7 +1,6 @@
 package asu.eng.gofund.controller;
 
 import asu.eng.gofund.controller.Login.*;
-import asu.eng.gofund.model.Observer;
 import asu.eng.gofund.model.User;
 import asu.eng.gofund.repo.UserRepo;
 import asu.eng.gofund.services.CookieService;
@@ -76,9 +75,9 @@ public class UserController implements ErrorController {
 
     @PostMapping("/login")
     public String loginUser(
-            @RequestParam String username,
-            @RequestParam String password,
-            @RequestParam String strategy,
+            @RequestParam(required = false, defaultValue = "") String username,
+            @RequestParam(required = false, defaultValue = "") String password,
+            @RequestParam(required = false, defaultValue = "") String strategy,
             Model model,
             HttpServletResponse response
     ) {
@@ -109,6 +108,4 @@ public class UserController implements ErrorController {
         cookieService.removeAuthCookie(response);
         return "redirect:/";
     }
-
-
 }

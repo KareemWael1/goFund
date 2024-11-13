@@ -13,7 +13,7 @@
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item" th:if="${user}">
-                    <a class="nav-link">Welcome <th:block th:text="${user.getUsername()}"></th:block> <span class="badge bg-secondary" th:text="${user.getLoginStrategy()}"></span></a>
+                    <a class="nav-link">Welcome <span th:text="${user.getUsername()}"></span> <span class="badge bg-secondary" th:text="${user.getLoginStrategy()}"></span></a>
                 </li>
                 <li class="nav-item" th:if="${user}">
                     <a class="nav-link" href="/dashboard">Dashboard</a>
@@ -40,32 +40,10 @@
 
             <div class="row mt-4">
                 <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Featured Campaign</h5>
-                            <p class="card-text">Help support this amazing cause.</p>
-                            <a href="#" class="btn btn-primary">Learn More</a>
-                        </div>
-                    </div>
+                    <a href="/campaign/list" class="btn btn-primary w-100">View Campaigns</a>
                 </div>
                 <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Recent Campaign</h5>
-                            <p class="card-text">Join others in making an impact.</p>
-                            <a href="#" class="btn btn-primary">Learn More</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Start a Campaign</h5>
-                    <p class="card-text">Create your own fundraising campaign today.</p>
-                    <a href="/campaigns/create" class="btn btn-success w-100">Create Campaign</a>
+                    <a href="/donate" class="btn btn-success w-100">Make a Donation</a>
                 </div>
             </div>
         </div>

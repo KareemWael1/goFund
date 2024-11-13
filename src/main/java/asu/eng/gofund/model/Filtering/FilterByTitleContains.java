@@ -1,5 +1,7 @@
 // FilterByTitleContains.java
-package asu.eng.gofund.model;
+package asu.eng.gofund.model.Filtering;
+
+import asu.eng.gofund.model.Campaign;
 
 import java.util.List;
 import java.util.stream.Collectors;

@@ -32,7 +32,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authenticationInterceptor);
 
-        // Add the authorization interceptor to the excluding all paths and including only /dashboard
+//         Add the authorization interceptor to the excluding all paths and including only /dashboard
         registry.addInterceptor(authorizationInterceptor)
                 .excludePathPatterns("/**");
     }
