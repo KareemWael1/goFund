@@ -9,18 +9,18 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "donation")
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class Donation<DateTime> {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "donation_seq")
-    private Long id;
-    private Long donorId;
-    private double amount;
-    private Long campaignId;
+    protected Long id;
+    protected Long donorId;
+    protected double amount;
+    protected Long campaignId;
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime donationDate;
-    private boolean isRefunded;
-    private int status;
+    protected LocalDateTime donationDate;
+    protected boolean isRefunded;
+    protected int status;
 
     public Donation() {
     }
