@@ -21,7 +21,7 @@ public class User implements Observer {
     private String password;
     private String loginStrategy;
     @ManyToMany(mappedBy = "observers")
-    private List<PersonalCampaign> subjects;
+    private List<Campaign> subjects;
     // Constructors
 
 
@@ -144,14 +144,19 @@ public class User implements Observer {
     }
 
     public void subscribe(Subject subject) {
-        subjects.add((PersonalCampaign) subject);
+        subjects.add((Campaign) subject);
         subject.registerObserver(this);
     }
     public void unsubscribe(Subject subject) {
-        PersonalCampaign sub = subjects.get(subjects.indexOf((PersonalCampaign) subject));
+        Campaign sub = subjects.get(subjects.indexOf((Campaign) subject));
         sub.removeObserver(this);
         subjects.remove(sub);
 
+    }
+
+    public String getRole() {
+        // TODO: Implement this method
+        return "user";
     }
 
 

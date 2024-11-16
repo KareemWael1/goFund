@@ -1,19 +1,19 @@
 package asu.eng.gofund.model;
 
-import asu.eng.gofund.util.DatabaseUtil;
-import jakarta.persistence.*;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 
+import jakarta.persistence.*;
+
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public class Campaign {
+public class Campaign implements Subject{
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "campaign_id_seq")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private boolean isDeleted;
+    private boolean deleted;
     private String name;
     private String description;
     private String imageUrl;
@@ -24,8 +24,7 @@ public class Campaign {
     private Date startDate;
     private Date endDate;
     protected double currentAmount;
-//    @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Comment> comments;
+    private double targetAmount;
     @ManyToMany
     @JoinTable(name = "address_campaign",
             joinColumns = @JoinColumn(name = "campaign_id"),
@@ -33,8 +32,17 @@ public class Campaign {
     )
     private List<Address> addresses;
     private String bankAccountNumber;
+    @ManyToMany
+    @JoinTable(
+            name = "subject_observer",
+            joinColumns = @JoinColumn(name = "subject_id"),
+            inverseJoinColumns = @JoinColumn(name = "observer_id")
+    )
+    private List<User> observers;
 
     public Campaign() {
+        super();
+        observers = new ArrayList<>();
     }
 
     public Campaign(String name, String description) {
@@ -44,7 +52,8 @@ public class Campaign {
 
     public Campaign(Long id, String name, String description, String imageUrl,
                     CampaignStatus campaignStatus, Currency currency,
-                    Long category, Long starterId, String bankAccountNumber, Date startDate, Date endDate, Long currentAmount, List<Address> addresses, List<Comment> comments) {
+                    Long category, Long starterId, String bankAccountNumber, Date startDate,
+                    Date endDate, Long currentAmount, List<Address> addresses, double targetAmount) {
 
         this.id = id;
         this.name = name;
@@ -59,13 +68,14 @@ public class Campaign {
         this.startDate = startDate;
         this.endDate = endDate;
         this.currentAmount = currentAmount;
-//        this.comments = comments;
+        this.targetAmount = targetAmount;
     }
 
     public Campaign(boolean isDeleted, String name, String description, String imageUrl,
                     CampaignStatus campaignStatus, Currency currency,
-                    Long category, Long starterId, String bankAccountNumber,  Date startDate, Date endDate, Long currentAmount, List<Address> addresses, List<Comment> comments) {
-        this.isDeleted = isDeleted;
+                    Long category, Long starterId, String bankAccountNumber,
+                    Date startDate, Date endDate, Long currentAmount, List<Address> addresses,double targetAmount) {
+        this.deleted = isDeleted;
         this.name = name;
         this.description = description;
         this.imageUrl = imageUrl;
@@ -78,10 +88,34 @@ public class Campaign {
         this.startDate = startDate;
         this.endDate = endDate;
         this.currentAmount = currentAmount;
-//        this.comments = comments;
+        this.targetAmount = targetAmount;
+
 
     }
+    public List<User> getObservers() {
+        return observers;
+    }
+    public void donate(double amount) {
+        this.currentAmount += amount;
+        notifyObservers();
+    }
 
+    @Override
+    public void registerObserver(Observer observer) {
+        observers.add((User) observer);
+    }
+
+    @Override
+    public void removeObserver(Observer observer) {
+        observers.remove((User) observer);
+    }
+
+    @Override
+    public void notifyObservers() {
+        for (Observer observer : observers) {
+            observer.update(this.getId(), this.getCurrentAmount());
+        }
+    }
     public Date getStartDate() {
         return startDate;
     }
@@ -116,10 +150,6 @@ public class Campaign {
         return true;
     }
 
-    boolean deleteCampaign(Long id) {
-        setDeleted(true);
-        return true;
-    }
 
     public void setName(String name) {
         this.name = name;
@@ -186,11 +216,11 @@ public class Campaign {
     }
 
     public boolean isDeleted() {
-        return isDeleted;
+        return deleted;
     }
 
     public void setDeleted(boolean deleted) {
-        isDeleted = deleted;
+        this.deleted = deleted;
     }
 
 
@@ -210,27 +240,5 @@ public class Campaign {
         this.addresses = addresses;
     }
 
-//    public List<Comment> getComments() {
-//        return comments;
-//    }
-//
-//    public void setComments(List<Comment> comments) {
-//        this.comments = comments;
-//    }
-//
-//    public int addComment(Comment comment) {
-//        comments.add(comment);
-//        // insert comment into DB
-//        String query = "INSERT INTO comment (id, is_deleted, content, author_id, timestamp, campaign_id, parent_comment_id, edited) VALUES (?,?,?,?,?,?,?,?)";
-//        return DatabaseUtil.getConnection().update(query,
-//                comment.getId(),
-//                comment.isDeleted(),
-//                comment.getContent(),
-//                comment.getAuthor().getId(),
-//                comment.getTimestamp(),
-//                comment.getCampaignId(),
-//                comment.getParentComment().getId(),
-//                comment.isEdited());
-//    }
 
 }

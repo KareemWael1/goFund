@@ -8,4 +8,5 @@ import java.util.List;
 @Repository
 public interface CommentRepo extends JpaRepository<Comment, Long> {
     List<Comment> findByParentCommentId(Long parentCommentId);
+    List<Comment> findByCampaignId(Long campaignId);
 }

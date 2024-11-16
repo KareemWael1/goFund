@@ -1,14 +1,17 @@
 package asu.eng.gofund.controller;
 
+import asu.eng.gofund.annotations.CurrentUser;
 import asu.eng.gofund.model.*;
 import asu.eng.gofund.repo.CampaignRepo;
+import asu.eng.gofund.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -17,6 +20,8 @@ public class CampaignController {
 
     @Autowired
     private CampaignRepo campaignRepo;
+    @Autowired
+    private UserRepo userRepo;
 
     //Add a new campaign
     @PostMapping("")
@@ -27,9 +32,8 @@ public class CampaignController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Campaign> updateCampaign(@PathVariable Long id, @RequestBody Campaign campaignDetails) {
-        Optional<Campaign> optionalCampaign = campaignRepo.findById(id);
-        if (optionalCampaign.isPresent()) {
-            Campaign campaign = optionalCampaign.get();
+        try {
+            Campaign campaign = campaignRepo.getCampaignsByIdAndDeletedFalse(id);
             campaign.setName(campaignDetails.getName());
             campaign.setDescription(campaignDetails.getDescription());
             campaign.setImageUrl(campaignDetails.getImageUrl());
@@ -41,19 +45,24 @@ public class CampaignController {
             campaign.setAddresses(campaignDetails.getAddresses());
             Campaign updatedCampaign = campaignRepo.save(campaign);
             return ResponseEntity.ok(updatedCampaign);
-        } else {
+        } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }
+
+
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCampaign(@PathVariable Long id) {
-        if (campaignRepo.existsById(id)) {
-            campaignRepo.deleteById(id);
+    public ResponseEntity<Void> deleteCampaign(@PathVariable Long id, @CurrentUser User user) {
+        Campaign campaign = campaignRepo.getCampaignsByIdAndDeletedFalse(id);
+        if (Objects.equals(campaign.getStarterId(), user.getId()) || Objects.equals(user.getRole(), "admin")) {
+            campaign.setDeleted(true);
+            campaignRepo.save(campaign);
             return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
         }
+
+        return ResponseEntity.notFound().build();
+
     }
 
     @GetMapping("/{id}")
@@ -62,11 +71,6 @@ public class CampaignController {
         return campaign.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-//    @GetMapping("")
-//    public ResponseEntity<Iterable<Campaign>> getAllCampaigns() {
-//        Iterable<Campaign> campaigns = campaignRepo.findAll();
-//        return ResponseEntity.ok(campaigns);
-//    }
 
     @GetMapping("")
     public ResponseEntity<Iterable<Campaign>> getAllCampaigns(
@@ -75,7 +79,7 @@ public class CampaignController {
             @RequestParam(required = false) String filterTitle,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date filterEndDate) {
 
-        List<Campaign> campaigns = (List<Campaign>) campaignRepo.findAll();
+        List<Campaign> campaigns = campaignRepo.findAllByDeletedFalse();
 
 
         if (filterCategory != null) {
@@ -104,6 +108,72 @@ public class CampaignController {
         }
 
         return ResponseEntity.ok(campaigns);
+    }
+    @PutMapping("/{campaignId}/donate")
+    public ResponseEntity<String> donateToCampaign(
+            @PathVariable Long campaignId,
+            @CurrentUser User user,
+            @RequestParam double amount) {
+
+        try {
+            // Retrieve the campaign and user from the repositories
+            Campaign campaign = campaignRepo.getCampaignsByIdAndDeletedFalse(campaignId);
+            // make operations on user if needed
+            campaign.donate(amount);
+            campaignRepo.save(campaign);
+            return ResponseEntity.ok("Donation successful");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Donation failed "+ e.getMessage());
+        }
+
+    }
+
+    @PostMapping("/{campaignId}/subscribe/{userId}")
+    public ResponseEntity<String> subscribeToCampaign(
+            @PathVariable Long campaignId,
+            @PathVariable Long userId) {
+
+        try {
+            // Retrieve the campaign and user from the repositories
+            Campaign campaign = campaignRepo.getCampaignsByIdAndDeletedFalse(campaignId);
+
+            User user = userRepo.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            // Add the user as an observer of the campaign
+            user.subscribe(campaign);
+
+            // Save the updated campaign if needed
+            campaignRepo.save(campaign);
+
+            return ResponseEntity.ok("User subscribed to campaign successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Subscription failed " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/{campaignId}/unsubscribe/{userId}")
+    public ResponseEntity<String> unsubscribeFromCampaign(
+            @PathVariable Long campaignId,
+            @PathVariable Long userId) {
+
+        try {
+            // Retrieve the campaign and user from the repositories
+            Campaign campaign = campaignRepo.getCampaignsByIdAndDeletedFalse(campaignId);
+
+            User user = userRepo.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            // Remove the user as an observer of the campaign
+            user.unsubscribe(campaign);
+
+            // Save the updated campaign if needed
+            campaignRepo.save(campaign);
+
+            return ResponseEntity.ok("User unsubscribed from campaign successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Unsubscription failed " + e.getMessage());
+        }
     }
 
 }
