@@ -10,12 +10,10 @@ import org.springframework.stereotype.Repository;
 import java.util.Date;
 import java.util.List;
 
-import java.util.List;
-
 @Repository
 public interface CampaignRepo extends JpaRepository<Campaign, Long> {
     List<Campaign> findAllByDeletedFalse();
-    Campaign getCampaignsByIdAndDeletedFalse(Long id);
+    Campaign findCampaignByIdAndDeletedFalse(Long id);
     @Query("SELECT c FROM Campaign c WHERE (:category IS NULL OR c.category = :category) " +
             "AND (:title IS NULL OR c.name LIKE %:title%) " +
             "AND (:endDate IS NULL OR c.endDate = :endDate)")

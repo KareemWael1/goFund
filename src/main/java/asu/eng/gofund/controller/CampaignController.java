@@ -2,8 +2,6 @@ package asu.eng.gofund.controller;
 
 import asu.eng.gofund.annotations.CurrentUser;
 import asu.eng.gofund.model.*;
-import asu.eng.gofund.model.Filtering.*;
-import asu.eng.gofund.model.Sorting.*;
 import asu.eng.gofund.repo.CampaignRepo;
 import asu.eng.gofund.repo.UserRepo;
 import org.springframework.ui.Model;
@@ -35,7 +33,7 @@ public class CampaignController {
     @PutMapping("/{id}")
     public ResponseEntity<Campaign> updateCampaign(@PathVariable Long id, @RequestBody Campaign campaignDetails) {
         try {
-            Campaign campaign = campaignRepo.getCampaignsByIdAndDeletedFalse(id);
+            Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(id);
             campaign.setName(campaignDetails.getName());
             campaign.setDescription(campaignDetails.getDescription());
             campaign.setImageUrl(campaignDetails.getImageUrl());
@@ -56,7 +54,7 @@ public class CampaignController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCampaign(@PathVariable Long id, @CurrentUser User user) {
-        Campaign campaign = campaignRepo.getCampaignsByIdAndDeletedFalse(id);
+        Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(id);
         if (Objects.equals(campaign.getStarterId(), user.getId()) || Objects.equals(user.getRole(), "admin")) {
             campaign.setDeleted(true);
             campaignRepo.save(campaign);
@@ -69,7 +67,7 @@ public class CampaignController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Campaign> getCampaign(@PathVariable Long id) {
-        Optional<Campaign> campaign = campaignRepo.findById(id);
+        Optional<Campaign> campaign = Optional.ofNullable(campaignRepo.findCampaignByIdAndDeletedFalse(id));
         return campaign.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -104,7 +102,7 @@ public class CampaignController {
 
     @GetMapping("/")
     public String homePage(Model model) {
-        List<Campaign> campaigns = campaignRepo.findAll();
+        List<Campaign> campaigns = campaignRepo.findAllByDeletedFalse();
         model.addAttribute("campaigns", campaigns);
         return "homePage";
     }
@@ -116,7 +114,7 @@ public class CampaignController {
 
         try {
             // Retrieve the campaign and user from the repositories
-            Campaign campaign = campaignRepo.getCampaignsByIdAndDeletedFalse(campaignId);
+            Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(campaignId);
             // make operations on user if needed
             campaign.donate(amount);
             campaignRepo.save(campaign);
@@ -134,7 +132,7 @@ public class CampaignController {
 
         try {
             // Retrieve the campaign and user from the repositories
-            Campaign campaign = campaignRepo.getCampaignsByIdAndDeletedFalse(campaignId);
+            Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(campaignId);
 
             User user = userRepo.findById(userId)
                     .orElseThrow(() -> new RuntimeException("User not found"));
@@ -158,7 +156,7 @@ public class CampaignController {
 
         try {
             // Retrieve the campaign and user from the repositories
-            Campaign campaign = campaignRepo.getCampaignsByIdAndDeletedFalse(campaignId);
+            Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(campaignId);
 
             User user = userRepo.findById(userId)
                     .orElseThrow(() -> new RuntimeException("User not found"));
