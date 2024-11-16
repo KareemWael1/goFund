@@ -2,8 +2,11 @@ package asu.eng.gofund.controller;
 
 import asu.eng.gofund.annotations.CurrentUser;
 import asu.eng.gofund.model.*;
+import asu.eng.gofund.model.Filtering.*;
+import asu.eng.gofund.model.Sorting.*;
 import asu.eng.gofund.repo.CampaignRepo;
 import asu.eng.gofund.repo.UserRepo;
+import org.springframework.ui.Model;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +26,6 @@ public class CampaignController {
     @Autowired
     private UserRepo userRepo;
 
-    //Add a new campaign
     @PostMapping("")
     public ResponseEntity<Campaign> addCampaign(@RequestBody Campaign campaign) {
         Campaign savedCampaign = campaignRepo.save(campaign);
@@ -72,42 +74,39 @@ public class CampaignController {
     }
 
 
-    @GetMapping("")
-    public ResponseEntity<Iterable<Campaign>> getAllCampaigns(
+    @GetMapping("/list")
+    public String getAllCampaigns(
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) CampaignCategory filterCategory,
             @RequestParam(required = false) String filterTitle,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date filterEndDate) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date filterEndDate,
+            Model model) {
 
-        List<Campaign> campaigns = campaignRepo.findAllByDeletedFalse();
+        List<Campaign> campaigns;
 
-
-        if (filterCategory != null) {
-            ICampaignFilteringStrategy filteringStrategy = new FilterByCategory(filterCategory);
-            campaigns = filteringStrategy.filter(campaigns);
+        if (filterCategory != null || filterTitle != null || filterEndDate != null) {
+            campaigns = campaignRepo.findByFilters(filterCategory, filterTitle, filterEndDate);
+        } else {
+            campaigns = campaignRepo.findAll();
         }
-        if (filterTitle != null) {
-            ICampaignFilteringStrategy filteringStrategy = new FilterByTitleContains(filterTitle);
-            campaigns = filteringStrategy.filter(campaigns);
-        }
-        if (filterEndDate != null) {
-            ICampaignFilteringStrategy filteringStrategy = new FilterByEndDate(filterEndDate);
-            campaigns = filteringStrategy.filter(campaigns);
-        }
-
 
         if ("mostRecent".equalsIgnoreCase(sort)) {
-            ICampaignSortingStrategy sortingStrategy = new SortByMostRecent();
-            campaigns = sortingStrategy.sort(campaigns);
+            campaigns = campaignRepo.findAllOrderByMostRecent();
         } else if ("oldest".equalsIgnoreCase(sort)) {
-            ICampaignSortingStrategy sortingStrategy = new SortByOldest();
-            campaigns = sortingStrategy.sort(campaigns);
+            campaigns = campaignRepo.findAllOrderByOldest();
         } else if ("mostBacked".equalsIgnoreCase(sort)) {
-            ICampaignSortingStrategy sortingStrategy = new SortByMostBacked();
-            campaigns = sortingStrategy.sort(campaigns);
+            campaigns = campaignRepo.findAllOrderByMostBacked();
         }
 
-        return ResponseEntity.ok(campaigns);
+        model.addAttribute("campaigns", campaigns);
+        return "homePage";
+    }
+
+    @GetMapping("/")
+    public String homePage(Model model) {
+        List<Campaign> campaigns = campaignRepo.findAll();
+        model.addAttribute("campaigns", campaigns);
+        return "homePage";
     }
     @PutMapping("/{campaignId}/donate")
     public ResponseEntity<String> donateToCampaign(
@@ -176,4 +175,8 @@ public class CampaignController {
         }
     }
 
+    @GetMapping("/campaigns/create")
+    public String createCampaignPage() {
+        return "createCampaignPage";
+    }
 }

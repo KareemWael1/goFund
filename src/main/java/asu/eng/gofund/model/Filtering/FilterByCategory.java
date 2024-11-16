@@ -1,4 +1,7 @@
-package asu.eng.gofund.model;
+package asu.eng.gofund.model.Filtering;
+
+import asu.eng.gofund.model.Campaign;
+import asu.eng.gofund.model.CampaignCategory;
 
 import java.util.List;
 import java.util.stream.Collectors;
