@@ -34,6 +34,8 @@ public class WebConfig implements WebMvcConfigurer {
 
 //         Add the authorization interceptor to the excluding all paths and including only /dashboard
         registry.addInterceptor(authorizationInterceptor)
-                .excludePathPatterns("/**");
+                .addPathPatterns("/control-panel")
+                .addPathPatterns("/users/logout")
+                .addPathPatterns("/donate/**");
     }
 }

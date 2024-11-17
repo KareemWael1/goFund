@@ -12,6 +12,7 @@ import asu.eng.gofund.model.Sorting.SortByMostBacked;
 import asu.eng.gofund.model.Sorting.SortByMostRecent;
 import asu.eng.gofund.model.Sorting.SortByOldest;
 import asu.eng.gofund.repo.CampaignRepo;
+import asu.eng.gofund.repo.DonationRepo;
 import asu.eng.gofund.repo.UserRepo;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -33,6 +34,8 @@ public class CampaignController {
 
     @Autowired
     private CampaignRepo campaignRepo;
+    @Autowired
+    private DonationRepo donationRepo;
     @Autowired
     private UserRepo userRepo;
     @Autowired
@@ -75,6 +78,10 @@ public class CampaignController {
         Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(id);
         if (Objects.equals(campaign.getStarterId(), user.getId()) || Objects.equals(user.getUserType().getValue(), UserType.Admin.getValue())) {
             campaign.setDeleted(true);
+            donationRepo.getAllByIsRefundedFalseAndCampaignId(id).forEach(donation -> {
+                donation.setRefunded(true);
+                donationRepo.save(donation);
+            });
             campaignRepo.save(campaign);
             return new RedirectView(redirectURI);
         }
