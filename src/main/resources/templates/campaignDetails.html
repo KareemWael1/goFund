@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Campaign Details</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container">
+    <a class="navbar-brand" href="/">GoFund</a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item" th:if="${user}">
+          <a class="nav-link">Welcome <span th:text="${user.getUsername()}"></span> <span class="badge bg-secondary" th:text="${user.getLoginStrategy()}"></span></a>
+        </li>
+        <li class="nav-item" th:if="${user}">
+          <a class="nav-link" href="/dashboard">Dashboard</a>
+        </li>
+        <li class="nav-item" th:if="${user}">
+          <a class="nav-link" href="/users/logout">Logout</a>
+        </li>
+        <li class="nav-item" th:unless="${user}">
+          <a class="nav-link" href="/users/login">Login</a>
+        </li>
+        <li class="nav-item" th:unless="${user}">
+          <a class="nav-link" href="/users/register">Register</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-5">
+  <h1 th:text="${campaign.name}">Campaign Name</h1>
+  <img th:src="${campaign.imageUrl}" alt="Campaign Image" class="img-fluid mb-3">
+  <p th:text="${campaign.description}">Campaign Description</p>
+  <p><strong>Category:</strong> <span th:text="${campaign.category}"></span></p>
+  <p><strong>Currency:</strong> <span th:text="${campaign.currency}"></span></p>
+  <p><strong>Target Amount:</strong> <span th:text="${campaign.targetAmount}"></span></p>
+  <p><strong>Current Amount:</strong> <span th:text="${campaign.currentAmount}"></span></p>
+  <p><strong>Percentage Funded:</strong> <span th:text="${percentage}">0</span>%</p>
+  <p><strong>Start Date:</strong> <span th:text="${#dates.format(campaign.startDate, 'yyyy-MM-dd')}"></span></p>
+  <p><strong>End Date:</strong> <span th:text="${#dates.format(campaign.endDate, 'yyyy-MM-dd')}"></span></p>
+  <a href="/campaign" class="btn btn-primary">Back to Campaigns</a>
+
+  <h2 class="mt-5">Comments</h2>
+  <div th:each="comment : ${comments}" class="mb-3">
+    <div class="card">
+      <div class="card-body">
+        <p class="card-text" th:text="${comment.content}">Comment content</p>
+        <p class="card-text"><small class="text-muted">Posted by User <span th:text="${comment.authorId}"></span> on <span th:text="${#dates.format(comment.timestamp, 'yyyy-MM-dd HH:mm')}"></span></small></p>
+        <div th:each="reply : ${comment.replies}" class="ms-3">
+          <div class="card mt-2">
+            <div class="card-body">
+              <p class="card-text" th:text="${reply.content}">Reply content</p>
+              <p class="card-text"><small class="text-muted">Posted by User <span th:text="${reply.authorId}"></span> on <span th:text="${#dates.format(reply.timestamp, 'yyyy-MM-dd HH:mm')}"></span></small></p>
+            </div>
+          </div>
+        </div>
+        <form th:action="@{/comment/create}" method="post" class="mt-2">
+          <input type="hidden" name="campaignId" th:value="${campaign.id}">
+          <input type="hidden" name="redirectUrl" th:value="${requestURI}">
+          <input type="hidden" name="parentCommentId" th:value="${comment.id}">
+          <div class="mb-3">
+            <label for="replyContent" class="form-label">Reply</label>
+            <textarea class="form-control" id="replyContent" name="content" rows="2" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-secondary">Reply</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="mt-5">Add a Comment</h3>
+  <form th:action="@{/comment/create}" method="post">
+    <input type="hidden" name="campaignId" th:value="${campaign.id}">
+    <input type="hidden" name="redirectUrl" th:value="${requestURI}">
+    <div class="mb-3">
+      <label for="content" class="form-label">Comment</label>
+      <textarea class="form-control" id="content" name="content" rows="3" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
