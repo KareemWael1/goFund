@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.stream.Collectors;
 
 import java.util.Date;
 import java.util.List;
@@ -80,15 +82,19 @@ public class CampaignController {
     @Autowired
     private CommentController commentController;
 
+
     @GetMapping("/{id}")
-    public String viewCampaignDetails(@PathVariable Long id, Model model) {
+    public String viewCampaignDetails(@PathVariable Long id, Model model, HttpServletRequest request) {
         Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(id);
         double percentage = Math.round((campaign.getCurrentAmount() / campaign.getTargetAmount()) * 100);
-        List<Comment> comments = commentController.getComments(id);
+        List<Comment> comments = commentController.getComments(id).stream()
+                .filter(comment -> comment.getParentCommentId() == 0)
+                .collect(Collectors.toList());
 
         model.addAttribute("percentage", percentage);
         model.addAttribute("campaign", campaign);
         model.addAttribute("comments", comments);
+        model.addAttribute("requestURI", request.getRequestURI());
         return "campaignDetails";
     }
 
