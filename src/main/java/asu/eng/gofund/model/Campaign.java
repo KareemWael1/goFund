@@ -40,6 +40,10 @@ public class Campaign implements Subject{
     )
     private List<User> observers;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "starterId", insertable = false, updatable = false)
+    private User user;
+
     public Campaign() {
         super();
         observers = new ArrayList<>();
@@ -248,5 +252,12 @@ public class Campaign implements Subject{
         this.addresses = addresses;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 
 }

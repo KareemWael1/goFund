@@ -14,7 +14,8 @@ import java.util.Map;
 @Service
 public class JwtService {
 
-    private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private static final String SECRET_KEY_STRING = "ThisIsAVerySecureSecretKeyThatShouldBeAtLeast256BitsLong12345";
+    private static final Key SECRET_KEY = Keys.hmacShaKeyFor(SECRET_KEY_STRING.getBytes());
     private static final long EXPIRATION_TIME = 86400000 * 365; // 1 day in milliseconds
 
     public boolean isValidToken(String token) {

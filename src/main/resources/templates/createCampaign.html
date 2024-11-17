@@ -16,7 +16,7 @@
                     <a class="nav-link">Welcome <span th:text="${user.getUsername()}"></span> <span class="badge bg-secondary" th:text="${user.getLoginStrategy()}"></span></a>
                 </li>
                 <li class="nav-item" th:if="${user}">
-                    <a class="nav-link" href="/dashboard">Dashboard</a>
+                    <a class="nav-link" href="/control-panel">Control Panel</a>
                 </li>
                 <li class="nav-item" th:if="${user}">
                     <a class="nav-link" href="/users/logout">Logout</a>

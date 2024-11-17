@@ -4,7 +4,7 @@ import asu.eng.gofund.model.User;
 import org.springframework.stereotype.Component;
 
 @Component
-public class EmailPasswordLogin implements ILoginStrategy {
+public class UsernamePasswordLogin implements ILoginStrategy {
     @Override
     public String getStrategyName() {
         return "basic";

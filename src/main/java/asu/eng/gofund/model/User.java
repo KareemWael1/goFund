@@ -16,10 +16,13 @@ public class User implements Observer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private boolean deleted;
     private String username;
     private String email;
     private String password;
     private String loginStrategy;
+    @Enumerated(EnumType.STRING)
+    private UserType userType = UserType.Basic;
     @ManyToMany(mappedBy = "observers")
     private List<Campaign> subjects;
     // Constructors
@@ -84,6 +87,14 @@ public class User implements Observer {
 
     public void setLoginStrategy(String loginStrategy) {
         this.loginStrategy = loginStrategy;
+    }
+
+    public UserType getUserType() {
+        return userType;
+    }
+
+    public void setUserType(UserType userType) {
+        this.userType = userType;
     }
 
     @Override
@@ -160,6 +171,12 @@ public class User implements Observer {
     }
 
 
+    public boolean getDeleted() {
+        return deleted;
+    }
 
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
 
 }

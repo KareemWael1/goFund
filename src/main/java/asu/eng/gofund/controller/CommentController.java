@@ -4,6 +4,7 @@ import asu.eng.gofund.annotations.CurrentUser;
 import asu.eng.gofund.model.Campaign;
 import asu.eng.gofund.model.Comment;
 import asu.eng.gofund.model.User;
+import asu.eng.gofund.model.UserType;
 import asu.eng.gofund.repo.CampaignRepo;
 import asu.eng.gofund.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Controller;
 import asu.eng.gofund.repo.CommentRepo;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.Date;
 import java.util.List;
@@ -54,23 +57,27 @@ public class CommentController {
     public List<Comment> getComments(@PathVariable Long id) {
         return commentRepo.findByCampaignId(id);
     }
-//
-//    @DeleteMapping("/{commentId}")
-//    public ResponseEntity<String> deleteComment(@PathVariable Long commentId, @CurrentUser User user) {
-//        try {
-//            Comment comment = commentRepo.findById(commentId).
-//                    orElseThrow(() -> new RuntimeException("Comment not found"));
-//            if (Objects.equals(user.getId(), comment.getAuthorId()) || user.getRole().equals("admin")) {
-//                commentRepo.deleteById(commentId);
-//                return ResponseEntity.ok("Comment deleted successfully");
-//            } else {
-//                throw new RuntimeException("User not authorized to delete comment");
-//            }
-//        } catch (Exception e) {
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        }
-//
-//    }
 
+    @DeleteMapping("/{commentId}")
+    public RedirectView deleteComment(
+            @PathVariable Long commentId,
+            @RequestParam("redirectURI") String redirectURI,
+            @CurrentUser User user,
+            RedirectAttributes attributes
+    ) {
+        try {
+            Comment comment = commentRepo.findById(commentId).
+                    orElseThrow(() -> new RuntimeException("Comment not found"));
+            if (Objects.equals(user.getId(), comment.getAuthorId()) || user.getUserType().getValue() == UserType.Admin.getValue()) {
+                comment.setIsDeleted(true);
+                commentRepo.save(comment);
+                return new RedirectView(redirectURI);
+            } else {
+                return new RedirectView("/error");
+            }
+        } catch (Exception e) {
+            return new RedirectView("/error");
+        }
 
+    }
 }

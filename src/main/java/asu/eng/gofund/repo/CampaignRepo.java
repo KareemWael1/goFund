@@ -13,6 +13,7 @@ import java.util.List;
 @Repository
 public interface CampaignRepo extends JpaRepository<Campaign, Long> {
     List<Campaign> findAllByDeletedFalse();
+    List<Campaign> findAllByDeletedFalseOrderByIdAsc();
 
     Campaign findCampaignByIdAndDeletedFalse(Long id);
     @Query("SELECT c FROM Campaign c WHERE (:category IS NULL OR c.category = :category) " +
@@ -35,4 +36,5 @@ public interface CampaignRepo extends JpaRepository<Campaign, Long> {
     @Query("SELECT c FROM Campaign c ORDER BY c.currentAmount DESC")
     List<Campaign> findAllOrderByMostBacked();
 
+    List<Campaign> findByStarterIdAndDeletedFalseOrderByIdAsc(Long ownerId);
 }
