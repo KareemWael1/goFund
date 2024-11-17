@@ -2,7 +2,6 @@ package asu.eng.gofund.controller;
 
 import asu.eng.gofund.annotations.CurrentUser;
 import asu.eng.gofund.controller.Login.*;
-import asu.eng.gofund.model.Campaign;
 import asu.eng.gofund.model.User;
 import asu.eng.gofund.model.UserType;
 import asu.eng.gofund.repo.UserRepo;
@@ -17,8 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.view.RedirectView;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.Objects;
 
 @Controller
@@ -35,6 +35,16 @@ public class UserController implements ErrorController {
 
     @Autowired
     private LoginManager loginManager;
+
+    public static String hash(String input) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(input.getBytes());
+            return Base64.getEncoder().encodeToString(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error hashing input", e);
+        }
+    }
 
     @RequestMapping("/error")
     public String handleError(Model model) {
@@ -70,7 +80,7 @@ public class UserController implements ErrorController {
             return "registerPage";
         }
 
-        User createdUser = userRepo.save(new User(username, email, password, strategy));
+        User createdUser = userRepo.save(new User(username, email, hash(password), strategy));
 
         if (createdUser != null) {
             return "redirect:/users/login";
@@ -98,7 +108,7 @@ public class UserController implements ErrorController {
             loginManager.setStrategy(new UsernamePasswordLogin());
         }
 
-        loginManager.setCredentials(username, password);
+        loginManager.setCredentials(username, hash(password));
 
         User user = loginManager.performLogin(response);
 

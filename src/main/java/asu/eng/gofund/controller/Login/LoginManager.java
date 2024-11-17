@@ -1,7 +1,6 @@
 package asu.eng.gofund.controller.Login;
 
 import asu.eng.gofund.model.User;
-import asu.eng.gofund.repo.UserRepo;
 import asu.eng.gofund.services.CookieService;
 import asu.eng.gofund.services.JwtService;
 import jakarta.servlet.http.HttpServletResponse;

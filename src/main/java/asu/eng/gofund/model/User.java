@@ -121,7 +121,7 @@ public class User implements Observer {
 
     public static User getUserByUsernameAndPassword(String username, String password) {
         try {
-            String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+            String sql = "SELECT * FROM users WHERE username = ? AND password = ? AND deleted = false";
             return DatabaseUtil.getConnection().queryForObject(sql, new BeanPropertyRowMapper<>(User.class), username, password);
         } catch (EmptyResultDataAccessException e) {
             return null;
