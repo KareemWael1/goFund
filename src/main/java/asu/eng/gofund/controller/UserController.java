@@ -1,19 +1,25 @@
 package asu.eng.gofund.controller;
 
+import asu.eng.gofund.annotations.CurrentUser;
 import asu.eng.gofund.controller.Login.*;
+import asu.eng.gofund.model.Campaign;
 import asu.eng.gofund.model.User;
+import asu.eng.gofund.model.UserType;
 import asu.eng.gofund.repo.UserRepo;
 import asu.eng.gofund.services.CookieService;
 import asu.eng.gofund.services.JwtService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.error.ErrorController;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Controller
 @RequestMapping("/users")
@@ -73,11 +79,12 @@ public class UserController implements ErrorController {
         }
     }
 
-    @PostMapping("/login")
+    @PostMapping(value = "/login",
+            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public String loginUser(
-            @RequestParam(required = false, defaultValue = "") String username,
-            @RequestParam(required = false, defaultValue = "") String password,
-            @RequestParam(required = false, defaultValue = "") String strategy,
+            @RequestParam("username") String username,
+            @RequestParam("password") String password,
+            @RequestParam("strategy") String strategy,
             Model model,
             HttpServletResponse response
     ) {
@@ -88,7 +95,7 @@ public class UserController implements ErrorController {
         } else if(strategy.equals("github")) {
             loginManager.setStrategy(new GithubLogin());
         } else {
-            loginManager.setStrategy(new EmailPasswordLogin());
+            loginManager.setStrategy(new UsernamePasswordLogin());
         }
 
         loginManager.setCredentials(username, password);
@@ -107,5 +114,29 @@ public class UserController implements ErrorController {
     public String logout(HttpServletResponse response) {
         cookieService.removeAuthCookie(response);
         return "redirect:/";
+    }
+
+    @DeleteMapping("/{id}")
+    public RedirectView deleteUser(@PathVariable Long id, @RequestParam("redirectURI") String redirectURI, @CurrentUser User currentUser) {
+        User user = userRepo.findById(id).orElse(null);
+        if (Objects.equals(currentUser.getUserType().getValue(), UserType.Admin.getValue())) {
+            user.setDeleted(true);
+            userRepo.save(user);
+            return new RedirectView(redirectURI);
+        }
+
+        return new RedirectView("/error");
+
+    }
+
+    @PutMapping("/{id}/type")
+    public RedirectView updateUserType(@PathVariable Long id, @RequestParam("userType") String userType, @RequestParam("redirectURI") String redirectURI, @CurrentUser User currentUser) {
+        User user = userRepo.findById(id).orElse(null);
+        if (Objects.equals(currentUser.getUserType().getValue(), UserType.Admin.getValue())) {
+            user.setUserType(UserType.valueOf(userType));
+            userRepo.save(user);
+            return new RedirectView(redirectURI);
+        }
+        return new RedirectView("/error");
     }
 }

@@ -2,6 +2,7 @@ package asu.eng.gofund.controller;
 
 import asu.eng.gofund.annotations.CurrentUser;
 import asu.eng.gofund.model.*;
+import asu.eng.gofund.model.Currency;
 import asu.eng.gofund.model.Filtering.CampaignFilterer;
 import asu.eng.gofund.model.Filtering.FilterByCategory;
 import asu.eng.gofund.model.Filtering.FilterByEndDate;
@@ -21,11 +22,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.stream.Collectors;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Controller
 @RequestMapping("/campaign")
@@ -44,36 +44,40 @@ public class CampaignController {
         return "campaign";
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Campaign> updateCampaign(@PathVariable Long id, @RequestBody Campaign campaignDetails) {
-        try {
-            Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(id);
-            campaign.setName(campaignDetails.getName());
-            campaign.setDescription(campaignDetails.getDescription());
-            campaign.setImageUrl(campaignDetails.getImageUrl());
-            campaign.setStatus(campaignDetails.getStatus());
-            campaign.setCurrency(campaignDetails.getCurrency());
-            campaign.setCategory(campaignDetails.getCategory());
-            campaign.setStarterId(campaignDetails.getStarterId());
-            campaign.setBankAccountNumber(campaignDetails.getBankAccountNumber());
-            campaign.setAddresses(campaignDetails.getAddresses());
-            Campaign updatedCampaign = campaignRepo.save(campaign);
-            return ResponseEntity.ok(updatedCampaign);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public RedirectView updateCampaign(
+            @PathVariable Long id,
+            @RequestParam("redirectURI") String redirectURI,
+            @RequestParam("name") String name,
+            @RequestParam("description") String description,
+            @CurrentUser User user,
+            RedirectAttributes attributes
+    ) {
+        Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(id);
+        if(campaign != null && (user.getUserType().getValue() == UserType.Admin.getValue() || campaign.getStarterId() == user.getId())) {
+            if (name != null && !name.isEmpty()) {
+                campaign.setName(name);
+            }
+            if (description != null && !description.isEmpty()) {
+                campaign.setDescription(description);
+            }
+
+            campaignRepo.save(campaign);
+            return new RedirectView(redirectURI);
         }
+        return new RedirectView("/error");
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCampaign(@PathVariable Long id, @CurrentUser User user) {
+    public RedirectView deleteCampaign(@PathVariable Long id, @RequestParam("redirectURI") String redirectURI, @CurrentUser User user) {
         Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(id);
-        if (Objects.equals(campaign.getStarterId(), user.getId()) || Objects.equals(user.getRole(), "admin")) {
+        if (Objects.equals(campaign.getStarterId(), user.getId()) || Objects.equals(user.getUserType().getValue(), UserType.Admin.getValue())) {
             campaign.setDeleted(true);
             campaignRepo.save(campaign);
-            return ResponseEntity.noContent().build();
+            return new RedirectView(redirectURI);
         }
 
-        return ResponseEntity.notFound().build();
+        return new RedirectView("/error");
 
     }
 

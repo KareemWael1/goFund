@@ -18,6 +18,10 @@ public class Comment {
     private Long campaignId;
     private Long parentCommentId = 0L;
     private boolean edited;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "authorId", insertable = false, updatable = false)
+    private User user;
+
 
     @OneToMany(mappedBy = "parentCommentId")
     private List<Comment> replies;
@@ -29,7 +33,6 @@ public class Comment {
     public void setReplies(List<Comment> replies) {
         this.replies = replies;
     }
-
     public Comment(){}
 
     public Comment(long id,
@@ -63,7 +66,6 @@ public class Comment {
         this.timestamp = timestamp;
         this.campaignId = campaignId;
         this.parentCommentId = parentCommentId;
-
         this.edited = edited;
     }
 
@@ -105,6 +107,14 @@ public class Comment {
 
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Long getParentCommentId() {
@@ -151,4 +161,11 @@ public class Comment {
         this.parentCommentId = l;
     }
 
+    public boolean getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
 }
