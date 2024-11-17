@@ -14,13 +14,13 @@ public class OrgDonation extends Donation{
         super();
     }
 
-    public OrgDonation(Long id, Long donorId, double amount, Long campaignId, LocalDateTime donationDate, boolean isRefunded, int status, boolean regularDonation) {
-        super(id, donorId, amount, campaignId, donationDate, isRefunded, status);
+    public OrgDonation(Long id, Long donorId, double amount, Long campaignId, LocalDateTime donationDate, boolean isRefunded, String paymentStrategy, boolean regularDonation) {
+        super(id, donorId, amount, campaignId, donationDate, isRefunded, paymentStrategy);
         this.regularDonation = regularDonation;
     }
 
-    public OrgDonation(Long donorId, double amount, Long campaignId, LocalDateTime donationDate, boolean isRefunded, int status, boolean regularDonation) {
-        super(donorId, amount, campaignId, donationDate, isRefunded, status);
+    public OrgDonation(Long donorId, double amount, Long campaignId, LocalDateTime donationDate, boolean isRefunded, String paymentStrategy, boolean regularDonation) {
+        super(donorId, amount, campaignId, donationDate, isRefunded, paymentStrategy);
         this.regularDonation = regularDonation;
     }
 
@@ -42,7 +42,6 @@ public class OrgDonation extends Donation{
                 ", campaignId=" + campaignId +
                 ", donationDate=" + donationDate +
                 ", isRefunded=" + isRefunded +
-                ", status=" + status +
                 '}';
     }
 }
