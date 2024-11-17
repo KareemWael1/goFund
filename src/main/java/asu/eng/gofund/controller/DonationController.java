@@ -3,22 +3,23 @@ package asu.eng.gofund.controller;
 import asu.eng.gofund.controller.Payment.EGP2USDConverter;
 import asu.eng.gofund.controller.Payment.IPaymentStrategy;
 import asu.eng.gofund.controller.Payment.USD2EGPConverter;
-import asu.eng.gofund.model.Campaign;
-import asu.eng.gofund.model.CustomCurrency;
-import asu.eng.gofund.model.Donation;
+import asu.eng.gofund.model.*;
 import asu.eng.gofund.repo.CampaignRepo;
 import asu.eng.gofund.repo.DonationRepo;
+import asu.eng.gofund.repo.UserRepo;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-@RestController
+@Controller
 @RequestMapping("/donate")
 public class DonationController {
     @Autowired
@@ -27,41 +28,70 @@ public class DonationController {
     @Autowired
     private CampaignRepo campaignRepo;
 
-    @PostMapping("/")
-    public String donate(Map<String, String> body, Model model) {
-        IPaymentStrategy paymentStrategy;
-        try {
-            paymentStrategy = Donation.createPaymentStrategyFactory(body.get("paymentStrategy"));
-        } catch (Exception e) {
-            return "Invalid payment strategy";
-        }
-        Long userId = Long.parseLong(body.get("userId"));
-        Long campaignId = Long.parseLong(body.get("campaignId"));
-        double amount = Double.parseDouble(body.get("amount"));
-        CustomCurrency currency = CustomCurrency.getCurrency(Long.parseLong(body.get("currency")));
-        Long campaignStarterId = null;
-        boolean regularDonation = false;
-        if (body.get("campaignStarterId") == null) {
-            campaignStarterId = Long.parseLong(body.get("campaignStarterId"));
-        }
-        if (body.get("regularDonation") == null) {
-            regularDonation = Boolean.parseBoolean(body.get("regularDonation"));
-        }
+    @Autowired
+    private CommentController commentController;
 
+    @Autowired
+    private UserRepo userRepo;
+
+    @PostMapping("/")
+    public String donate(Model model,
+                         @RequestParam String paymentStrategy,
+                         @RequestParam Long userId,
+                         @RequestParam Long campaignId,
+                         @RequestParam double amount,
+                         @RequestParam Long currency,
+                         @RequestParam(required = false) Long campaignStarterId,
+                         @RequestParam(required = false) Boolean regularDonation,
+                         @RequestParam(required = false) String donationType,
+                         @RequestParam(required = false) String cardNumber,
+                         @RequestParam(required = false) String cardHolderName,
+                         @RequestParam(required = false) String expiryDate,
+                         @RequestParam(required = false) String cvv,
+                         @RequestParam(required = false) String fawryCode,
+                         @RequestParam(required = false) String fawryAccount,
+                         @RequestParam(required = false) String fawryPassword
+    ){
+        IPaymentStrategy strategy;
+        try {
+            strategy = Donation.createPaymentStrategyFactory(paymentStrategy);
+        } catch (Exception e) {
+            model.addAttribute("error", "Invalid payment strategy");
+            return "error";
+        }
+        CustomCurrency selectedCurrency = CustomCurrency.getCurrency(currency);
+        if (regularDonation == null) {
+            regularDonation = false;
+        }
+        if (donationType == null) {
+            donationType = "personal";
+        }
         LocalDateTime donationDate = LocalDateTime.now();
-        Donation donation = Donation.createDonationFactory(body.get("donationType"), userId, amount, campaignId, donationDate, currency, false, body.get("paymentStrategy"), campaignStarterId, regularDonation);
-        donation = handleDifferentCurrency(donation);
-        if (donation.executePayment(paymentStrategy, body, amount)) {
+        Donation donation = Donation.createDonationFactory(donationType, userId, amount, campaignId, donationDate, selectedCurrency, false, paymentStrategy, campaignStarterId, regularDonation);
+        Campaign campaign = campaignRepo.findById(donation.getCampaignId()).get();
+
+        Donation decoratedDonation = handleDifferentCurrency(donation, campaign);
+
+        Map<String, String> credentials = new HashMap<>();
+        credentials.put("cardNumber", cardNumber);
+        credentials.put("cardHolderName", cardHolderName);
+        credentials.put("expiryDate", expiryDate);
+        credentials.put("cvv", cvv);
+        credentials.put("fawryCode", fawryCode);
+        credentials.put("fawryAccount", fawryAccount);
+        credentials.put("fawryPassword", fawryPassword);
+        if (decoratedDonation.executePayment(strategy, credentials, amount)) {
             donationRepo.save(donation);
-            return "redirect:/donationDetails/" + donation.getId() + "/";
+            campaign.donate(decoratedDonation.getAmount());
+            campaignRepo.save(campaign);
+            return "redirect:/campaign/" + campaignId;
         } else {
             model.addAttribute("error", "An error occurred while making the donation.");
             return "errorPage";
         }
     }
 
-    private Donation handleDifferentCurrency(Donation donation) {
-        Campaign campaign = campaignRepo.findById(donation.getCampaignId()).get();
+    private Donation handleDifferentCurrency(Donation donation, Campaign campaign) {
         if (campaign.getCurrency() == CustomCurrency.USD && donation.getCurrency() == CustomCurrency.EGP) {
             donation = new EGP2USDConverter(donation);
         } else if (campaign.getCurrency() == CustomCurrency.EGP && donation.getCurrency() == CustomCurrency.USD) {
@@ -70,9 +100,11 @@ public class DonationController {
         return donation;
     }
 
-    @GetMapping("")
-    public String showDonateForm(Model model) {
+    @GetMapping("/{campaignId}")
+    public String showDonateForm(Model model, @PathVariable Long campaignId) {
+        Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(campaignId);
         try {
+            model.addAttribute("campaign", campaign);
             model.addAttribute("currencies", CustomCurrency.values());
             return "donate";
         } catch (Exception e) {

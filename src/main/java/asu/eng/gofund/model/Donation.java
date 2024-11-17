@@ -109,6 +109,7 @@ public abstract class Donation {
     }
 
     public static IPaymentStrategy createPaymentStrategyFactory(String paymentStrategy){
+        System.out.println(paymentStrategy.toLowerCase().replaceAll(" ", ""));
         switch (paymentStrategy.toLowerCase().replaceAll(" ", "")){
             case "creditcard":
                 return new CreditCardPayment();

@@ -14,10 +14,10 @@ public class EGP2USDConverter extends CurrencyConverterDecorator{
     @Override
     public boolean executePayment(IPaymentStrategy paymentStrategy, Map<String, String> paymentInfo, double amount) {
         if (paymentStrategy instanceof CreditCardPayment) {
-            amount = amount * exchangeRate;
+            this.amount = amount * exchangeRate;
         } else if (paymentStrategy instanceof FawryPayment) {
-            amount = amount * exchangeRate;
+            this.amount = amount * exchangeRate;
         }
-        return decoratedDonation.executePayment(paymentStrategy, paymentInfo, amount);
+        return decoratedDonation.executePayment(paymentStrategy, paymentInfo, this.amount);
     }
 }
