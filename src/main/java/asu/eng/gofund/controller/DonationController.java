@@ -7,6 +7,9 @@ import asu.eng.gofund.model.*;
 import asu.eng.gofund.repo.CampaignRepo;
 import asu.eng.gofund.repo.DonationRepo;
 import asu.eng.gofund.repo.UserRepo;
+import asu.eng.gofund.view.CampaignView;
+import asu.eng.gofund.view.CoreView;
+import asu.eng.gofund.view.DonationView;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -34,6 +37,10 @@ public class DonationController {
     @Autowired
     private UserRepo userRepo;
 
+    DonationView donationView = new DonationView();
+    CoreView coreView = new CoreView();
+    CampaignView campaignView = new CampaignView();
+
     @PostMapping("/")
     public String donate(Model model,
                          @RequestParam String paymentStrategy,
@@ -57,7 +64,7 @@ public class DonationController {
             strategy = Donation.createPaymentStrategyFactory(paymentStrategy);
         } catch (Exception e) {
             model.addAttribute("error", "Invalid payment strategy");
-            return "error";
+            return coreView.showErrorPage();
         }
         CustomCurrency selectedCurrency = CustomCurrency.getCurrency(currency);
         if (regularDonation == null) {
@@ -84,10 +91,10 @@ public class DonationController {
             donationRepo.save(donation);
             campaign.donate(decoratedDonation.getAmount());
             campaignRepo.save(campaign);
-            return "redirect:/campaign/" + campaignId;
+            return campaignView.redirectToCampaignWithID(campaignId);
         } else {
             model.addAttribute("error", "An error occurred while making the donation.");
-            return "errorPage";
+            return coreView.showErrorPage();
         }
     }
 
@@ -106,10 +113,10 @@ public class DonationController {
         try {
             model.addAttribute("campaign", campaign);
             model.addAttribute("currencies", CustomCurrency.values());
-            return "donate";
+            return donationView.showDonate();
         } catch (Exception e) {
             model.addAttribute("error", "An error occurred while preparing the donation form.");
-            return "errorPage";
+            return coreView.showErrorPage();
         }
     }
 }

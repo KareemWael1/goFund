@@ -14,6 +14,8 @@ import asu.eng.gofund.model.Sorting.SortByOldest;
 import asu.eng.gofund.repo.CampaignRepo;
 import asu.eng.gofund.repo.DonationRepo;
 import asu.eng.gofund.repo.UserRepo;
+import asu.eng.gofund.view.CampaignView;
+import asu.eng.gofund.view.CoreView;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -41,12 +43,15 @@ public class CampaignController {
     @Autowired
     private CommentController commentController;
 
+    CampaignView campaignView = new CampaignView();
+    CoreView coreView = new CoreView();
+
     @GetMapping("")
     public String campaignPage(Model model) {
         List<Campaign> campaigns = campaignRepo.findAllByDeletedFalse();
         model.addAttribute("campaigns", campaigns);
         model.addAttribute("categories", CampaignCategory.values());
-        return "campaign";
+        return campaignView.showCampaigns();
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -70,7 +75,7 @@ public class CampaignController {
             campaignRepo.save(campaign);
             return new RedirectView(redirectURI);
         }
-        return new RedirectView("/error");
+        return coreView.redirectTo("/error");
     }
 
     @DeleteMapping("/{id}")
@@ -86,7 +91,7 @@ public class CampaignController {
             return new RedirectView(redirectURI);
         }
 
-        return new RedirectView("/error");
+        return coreView.redirectTo("/error");
 
     }
 
@@ -109,8 +114,9 @@ public class CampaignController {
         model.addAttribute("campaign", campaign);
         model.addAttribute("comments", comments);
         model.addAttribute("requestURI", request.getRequestURI());
-        return "campaignDetails";
+        return campaignView.showCampaignDetails();
     }
+
 
 
     @GetMapping("/list")
@@ -153,7 +159,7 @@ public class CampaignController {
 
         model.addAttribute("campaigns", campaigns);
         model.addAttribute("categories", CampaignCategory.values());
-        return "campaign";
+        return campaignView.showCampaigns();
     }
 
 
@@ -211,10 +217,9 @@ public class CampaignController {
         try {
             model.addAttribute("categories", CampaignCategory.values());
             model.addAttribute("currencies", CustomCurrency.values());
-            return "createCampaign";
+            return campaignView.showCreateCampaign();
         } catch (Exception e) {
-            model.addAttribute("error", "An error occurred while preparing the campaign creation form.");
-            return "errorPage";
+            return coreView.showErrorPage();
         }
     }
 
@@ -240,10 +245,9 @@ public class CampaignController {
             campaign.setEndDate(endDate);
             campaign.setStarterId(user.getId());
             campaignRepo.save(campaign);
-            return "redirect:/campaign";
+            return campaignView.redirectToCampaign();
         } catch (Exception e) {
-            model.addAttribute("error", "An error occurred while creating the campaign.");
-            return "errorPage";
+            return coreView.showErrorPage();
         }
     }
 

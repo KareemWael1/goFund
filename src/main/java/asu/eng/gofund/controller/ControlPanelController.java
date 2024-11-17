@@ -5,6 +5,7 @@ import asu.eng.gofund.model.User;
 import asu.eng.gofund.repo.CampaignRepo;
 import asu.eng.gofund.repo.CommentRepo;
 import asu.eng.gofund.repo.UserRepo;
+import asu.eng.gofund.view.ControlPanelView;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,6 +24,8 @@ public class ControlPanelController {
     @Autowired
     private CommentRepo commentRepo;
 
+    ControlPanelView controlPanel = new ControlPanelView();
+
     @GetMapping("/control-panel")
     public String controlPanel(Model model, @CurrentUser User user, HttpServletRequest request) {
         model.addAttribute("user", user);
@@ -39,6 +42,6 @@ public class ControlPanelController {
             model.addAttribute("comments", commentRepo.findByAuthorIdAndIsDeletedFalseOrderByIdAsc(user.getId()));
         }
 
-        return "controlPanel";
+        return controlPanel.showControlPanel() ;
     }
 }

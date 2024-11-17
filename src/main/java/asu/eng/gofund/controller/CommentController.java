@@ -7,6 +7,7 @@ import asu.eng.gofund.model.User;
 import asu.eng.gofund.model.UserType;
 import asu.eng.gofund.repo.CampaignRepo;
 import asu.eng.gofund.repo.UserRepo;
+import asu.eng.gofund.view.CoreView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,10 +33,7 @@ public class CommentController {
     @Autowired
     private UserRepo userRepo;
 
-    @GetMapping("")
-    public String commentPage() {
-        return "hello";
-    }
+    CoreView coreView = new CoreView();
 
     @PostMapping(value = "/create", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public String addComment(@RequestParam("redirectUrl") String redirectUrl,
@@ -50,7 +48,7 @@ public class CommentController {
         comment.setTimestamp(new java.sql.Date(System.currentTimeMillis()));
         comment.setParentCommentId(parentCommentId != null ? parentCommentId : 0L);
         commentRepo.save(comment);
-        return "redirect:" + redirectUrl;
+        return coreView.redirectToCertainPath(redirectUrl);
     }
 
     @GetMapping("/{id}")
@@ -71,12 +69,12 @@ public class CommentController {
             if (Objects.equals(user.getId(), comment.getAuthorId()) || user.getUserType().getValue() == UserType.Admin.getValue()) {
                 comment.setIsDeleted(true);
                 commentRepo.save(comment);
-                return new RedirectView(redirectURI);
+                return coreView.redirectTo(redirectURI);
             } else {
-                return new RedirectView("/error");
+                return coreView.redirectTo("/error");
             }
         } catch (Exception e) {
-            return new RedirectView("/error");
+            return coreView.redirectTo("/error");
         }
 
     }

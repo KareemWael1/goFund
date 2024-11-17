@@ -9,6 +9,7 @@ import asu.eng.gofund.model.Sorting.SortByMostRecent;
 import asu.eng.gofund.model.Sorting.SortByOldest;
 import asu.eng.gofund.model.User;
 import asu.eng.gofund.repo.CampaignRepo;
+import asu.eng.gofund.view.CoreView;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -25,12 +26,13 @@ import java.util.List;
 @RequestMapping("/")
 public class Home {
 
+    CoreView coreView = new CoreView();
 
     @GetMapping("/")
     public String homePage(@CurrentUser User user, Model model) {
         if (user != null) {
             model.addAttribute("user", user);
         }
-        return "homePage";
+        return coreView.showHomePage();
     }
 }

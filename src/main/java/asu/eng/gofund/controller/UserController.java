@@ -7,6 +7,8 @@ import asu.eng.gofund.model.UserType;
 import asu.eng.gofund.repo.UserRepo;
 import asu.eng.gofund.services.CookieService;
 import asu.eng.gofund.services.JwtService;
+import asu.eng.gofund.view.AuthView;
+import asu.eng.gofund.view.CoreView;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.error.ErrorController;
@@ -36,6 +38,10 @@ public class UserController implements ErrorController {
     @Autowired
     private LoginManager loginManager;
 
+
+    AuthView authView = new AuthView();
+    CoreView coreView = new CoreView();
+
     public static String hash(String input) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -49,17 +55,17 @@ public class UserController implements ErrorController {
     @RequestMapping("/error")
     public String handleError(Model model) {
         model.addAttribute("error", "An unexpected error occurred");
-        return "error";
+        return coreView.showErrorPage();
     }
 
     @GetMapping("/login")
     public String login() {
-        return "loginPage";
+        return authView.showLoginPage();
     }
 
     @GetMapping("/register")
     public String register() {
-        return "registerPage";
+        return authView.showRegisterPage();
     }
 
     @PostMapping("/register")
@@ -73,19 +79,19 @@ public class UserController implements ErrorController {
     ) {
         if (!password.equals(confirmPassword)) {
             model.addAttribute("error", "Passwords do not match");
-            return "registerPage";
+            return authView.showRegisterPage();
         }
         if(username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
             model.addAttribute("error", "Please fill in all fields");
-            return "registerPage";
+            return authView.showRegisterPage();
         }
 
         User createdUser = userRepo.save(new User(username, email, hash(password), strategy));
 
         if (createdUser != null) {
-            return "redirect:/users/login";
+            return authView.redirectToLogin();
         } else {
-            return "registerPage";
+            return authView.showRegisterPage();
         }
     }
 
@@ -113,17 +119,17 @@ public class UserController implements ErrorController {
         User user = loginManager.performLogin(response);
 
         if (user != null) {
-            return "redirect:/";
+            return coreView.redirectToHomePage();
         } else {
             model.addAttribute("error", "Invalid username or password");
-            return "loginPage";
+            return authView.showLoginPage();
         }
     }
 
     @GetMapping("/logout")
     public String logout(HttpServletResponse response) {
         cookieService.removeAuthCookie(response);
-        return "redirect:/";
+        return coreView.redirectToHomePage();
     }
 
     @DeleteMapping("/{id}")
@@ -135,7 +141,7 @@ public class UserController implements ErrorController {
             return new RedirectView(redirectURI);
         }
 
-        return new RedirectView("/error");
+        return coreView.redirectTo("/error");
 
     }
 
@@ -145,8 +151,8 @@ public class UserController implements ErrorController {
         if (Objects.equals(currentUser.getUserType().getValue(), UserType.Admin.getValue())) {
             user.setUserType(UserType.valueOf(userType));
             userRepo.save(user);
-            return new RedirectView(redirectURI);
+            return coreView.redirectTo(redirectURI);
         }
-        return new RedirectView("/error");
+        return coreView.redirectTo("/error");
     }
 }
