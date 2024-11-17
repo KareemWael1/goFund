@@ -35,6 +35,8 @@ public class CampaignController {
     private CampaignRepo campaignRepo;
     @Autowired
     private UserRepo userRepo;
+    @Autowired
+    private CommentController commentController;
 
     @GetMapping("")
     public String campaignPage(Model model) {
@@ -77,18 +79,21 @@ public class CampaignController {
 
     }
 
-    @Autowired
-    private CommentController commentController;
+
 
 
     @GetMapping("/{id}")
-    public String viewCampaignDetails(@PathVariable Long id, Model model, HttpServletRequest request) {
+    public String viewCampaignDetails(@PathVariable Long id, Model model, HttpServletRequest request, @CurrentUser User user) {
         Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(id);
         double percentage = Math.round((campaign.getCurrentAmount() / campaign.getTargetAmount()) * 100);
         List<Comment> comments = commentController.getComments(id).stream()
                 .filter(comment -> comment.getParentCommentId() == 0)
                 .collect(Collectors.toList());
-
+        if (campaign.getObservers().contains(user)) {
+            model.addAttribute("subscribed", true);
+        }else {
+            model.addAttribute("subscribed", false);
+        }
         model.addAttribute("percentage", percentage);
         model.addAttribute("campaign", campaign);
         model.addAttribute("comments", comments);
@@ -158,42 +163,32 @@ public class CampaignController {
 
     }
 
-    @PostMapping("/{campaignId}/subscribe/{userId}")
+    @PostMapping("/{campaignId}/subscribe")
     public ResponseEntity<String> subscribeToCampaign(
             @PathVariable Long campaignId,
-            @PathVariable Long userId) {
+            @CurrentUser User user) {
 
         try {
             Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(campaignId);
-
-            User user = userRepo.findById(userId)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-
-            user.subscribe(campaign);
-
+            User currUser = userRepo.findById(user.getId()).get();
+            currUser.subscribe(campaign);
             campaignRepo.save(campaign);
-
             return ResponseEntity.ok("User subscribed to campaign successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Subscription failed " + e.getMessage());
         }
     }
 
-    @PostMapping("/{campaignId}/unsubscribe/{userId}")
+    @PostMapping("/{campaignId}/unsubscribe")
     public ResponseEntity<String> unsubscribeFromCampaign(
             @PathVariable Long campaignId,
-            @PathVariable Long userId) {
+            @CurrentUser User user) {
 
         try {
             Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(campaignId);
-
-            User user = userRepo.findById(userId)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-
-            user.unsubscribe(campaign);
-
+            User currUser = userRepo.findById(user.getId()).get();
+            currUser.unsubscribe(campaign);
             campaignRepo.save(campaign);
-
             return ResponseEntity.ok("User unsubscribed from campaign successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Unsubscription failed " + e.getMessage());
