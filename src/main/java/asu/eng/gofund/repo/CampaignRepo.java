@@ -13,6 +13,7 @@ import java.util.List;
 @Repository
 public interface CampaignRepo extends JpaRepository<Campaign, Long> {
     List<Campaign> findAllByDeletedFalse();
+
     Campaign findCampaignByIdAndDeletedFalse(Long id);
     @Query("SELECT c FROM Campaign c WHERE (:category IS NULL OR c.category = :category) " +
             "AND (:title IS NULL OR c.name LIKE %:title%) " +

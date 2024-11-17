@@ -13,7 +13,7 @@ public class Campaign implements Subject{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private boolean deleted;
+    private boolean deleted = false;
     private String name;
     private String description;
     private String imageUrl;
@@ -21,9 +21,9 @@ public class Campaign implements Subject{
     private Long currency = 0L;
     private Long category = 0L;
     private Long starterId;
-    private Date startDate;
+    private Date startDate = new Date();
     private Date endDate;
-    protected double currentAmount;
+    protected double currentAmount = 0;
     private double targetAmount;
     @ManyToMany
     @JoinTable(name = "address_campaign",
@@ -116,6 +116,14 @@ public class Campaign implements Subject{
             observer.update(this.getId(), this.getCurrentAmount());
         }
     }
+    public double getTargetAmount() {
+        return targetAmount;
+    }
+
+    public void setTargetAmount(double targetAmount) {
+        this.targetAmount = targetAmount;
+    }
+
     public Date getStartDate() {
         return startDate;
     }

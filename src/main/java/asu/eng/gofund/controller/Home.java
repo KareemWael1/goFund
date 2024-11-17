@@ -25,6 +25,7 @@ import java.util.List;
 @RequestMapping("/")
 public class Home {
 
+
     @GetMapping("/")
     public String homePage(@CurrentUser User user, Model model) {
         if (user != null) {

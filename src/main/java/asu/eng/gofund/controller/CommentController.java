@@ -1,6 +1,7 @@
 package asu.eng.gofund.controller;
 
 import asu.eng.gofund.annotations.CurrentUser;
+import asu.eng.gofund.model.Campaign;
 import asu.eng.gofund.model.Comment;
 import asu.eng.gofund.model.User;
 import asu.eng.gofund.repo.CampaignRepo;
@@ -9,8 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import asu.eng.gofund.repo.CommentRepo;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,19 +31,23 @@ public class CommentController {
     }
 
 
-    @PostMapping
-    public Comment createComment(@RequestBody Comment comment) {
-        Long id = comment.getCampaignId();
-        try {
-            campaignRepo.findById(id);
-            System.out.println("Campaign found");
-        } catch (Exception e) {
-            System.out.println("Campaign not found");
-            return null;
-        }
+    @PostMapping("/campaign/{id}/comment/add")
+    public String addComment(@PathVariable Long id, @RequestParam String content, @CurrentUser User user, Model model) {
+        Comment comment = new Comment();
+        comment.setCampaignId(id);
+        comment.setContent(content);
+        comment.setAuthorId(user.getId());
+        comment.setTimestamp((java.sql.Date) new Date(System.currentTimeMillis()));
+        commentRepo.save(comment);
 
-        return commentRepo.save(comment);
+        Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(id);
+        double percentage = Math.round((campaign.getCurrentAmount() / campaign.getTargetAmount()) * 100);
+        List<Comment> comments = commentRepo.findByCampaignId(id);
 
+        model.addAttribute("percentage", percentage);
+        model.addAttribute("campaign", campaign);
+        model.addAttribute("comments", comments);
+        return "campaignDetails";
     }
 
     @GetMapping("replies/{id}")

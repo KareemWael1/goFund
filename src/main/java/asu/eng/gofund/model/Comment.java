@@ -19,6 +19,17 @@ public class Comment {
     private Long parentCommentId;
     private boolean edited;
 
+    @OneToMany(mappedBy = "parentCommentId")
+    private List<Comment> replies;
+
+    public List<Comment> getReplies() {
+        return replies;
+    }
+
+    public void setReplies(List<Comment> replies) {
+        this.replies = replies;
+    }
+
     public Comment(){}
 
     public Comment(long id,
