@@ -14,13 +14,13 @@ public class PersonalDonation extends Donation{
         super();
     }
 
-    public PersonalDonation(Long id, Long donorId, double amount, Long campaignId, LocalDateTime donationDate, boolean isRefunded, String paymentStrategy, Long campaignStarterId) {
-        super(id, donorId, amount, campaignId, donationDate, isRefunded, paymentStrategy);
+    public PersonalDonation(Long id, Long donorId, double amount, Long campaignId, LocalDateTime donationDate, CustomCurrency currency, boolean isRefunded, String paymentStrategy, Long campaignStarterId) {
+        super(id, donorId, amount, campaignId, donationDate, currency, isRefunded, paymentStrategy);
         this.campaignStarterId = campaignStarterId;
     }
 
-    public PersonalDonation(Long donorId, double amount, Long campaignId, LocalDateTime donationDate, boolean isRefunded, String paymentStrategy, Long campaignStarterId) {
-        super(donorId, amount, campaignId, donationDate, isRefunded, paymentStrategy);
+    public PersonalDonation(Long donorId, double amount, Long campaignId, LocalDateTime donationDate, CustomCurrency currency, boolean isRefunded, String paymentStrategy, Long campaignStarterId) {
+        super(donorId, amount, campaignId, donationDate, currency, isRefunded, paymentStrategy);
         this.campaignStarterId = campaignStarterId;
     }
 
@@ -40,8 +40,10 @@ public class PersonalDonation extends Donation{
                 ", donorId=" + donorId +
                 ", amount=" + amount +
                 ", campaignId=" + campaignId +
+                ", currency=" + currency +
                 ", donationDate=" + donationDate +
                 ", isRefunded=" + isRefunded +
+                ", paymentStrategy='" + paymentStrategy + '\'' +
                 '}';
     }
 }

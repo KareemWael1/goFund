@@ -3,14 +3,12 @@ package asu.eng.gofund.model;
 import asu.eng.gofund.controller.Payment.CreditCardPayment;
 import asu.eng.gofund.controller.Payment.FawryPayment;
 import asu.eng.gofund.controller.Payment.IPaymentStrategy;
-import asu.eng.gofund.util.DatabaseUtil;
 import jakarta.persistence.*;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
+
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
@@ -23,25 +21,27 @@ public abstract class Donation {
     protected Long campaignId;
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     protected LocalDateTime donationDate;
+    protected CustomCurrency currency;
     protected boolean isRefunded;
     protected String paymentStrategy;
 
     public Donation() {
     }
 
-    public Donation(Long id, Long donorId, double amount, Long campaignId, LocalDateTime donationDate, boolean isRefunded, String paymentStrategy) {
+    public Donation(Long id, Long donorId, double amount, Long campaignId, LocalDateTime donationDate, CustomCurrency currency, boolean isRefunded, String paymentStrategy) {
         this.id = id;
         this.donorId = donorId;
         this.amount = amount;
         this.campaignId = campaignId;
         this.donationDate = donationDate;
+        this.currency = currency;
         this.isRefunded = isRefunded;
         this.paymentStrategy = paymentStrategy;
     }
 
 
-    public Donation(Long donorId, double amount, Long campaignId, LocalDateTime donationDate, boolean isRefunded, String paymentStrategy) {
-        this(null, donorId, amount, campaignId, donationDate, isRefunded, paymentStrategy);
+    public Donation(Long donorId, double amount, Long campaignId, LocalDateTime donationDate, CustomCurrency currency, boolean isRefunded, String paymentStrategy) {
+        this(null, donorId, amount, campaignId, donationDate, currency, isRefunded, paymentStrategy);
     }
 
     public Long getId() {
@@ -84,6 +84,14 @@ public abstract class Donation {
         this.donationDate = donationDate;
     }
 
+    public CustomCurrency getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(CustomCurrency currency) {
+        this.currency = currency;
+    }
+
     public boolean isRefunded() {
         return isRefunded;
     }
@@ -110,12 +118,12 @@ public abstract class Donation {
         throw new IllegalArgumentException("Invalid payment strategy");
     }
 
-    public static Donation createDonationFactory(String donationType, Long userId, double amount, Long campaignId, LocalDateTime donationDate, boolean isRefunded, String paymentStrategy, Long campaignStarterId, boolean regularDonation){
+    public static Donation createDonationFactory(String donationType, Long userId, double amount, Long campaignId, LocalDateTime donationDate, CustomCurrency currency, boolean isRefunded, String paymentStrategy, Long campaignStarterId, boolean regularDonation){
         switch (donationType.toLowerCase().replaceAll(" ", "")){
             case "personal":
-                return new PersonalDonation(userId, amount, campaignId, donationDate, isRefunded, paymentStrategy, campaignStarterId);
+                return new PersonalDonation(userId, amount, campaignId, donationDate, currency, isRefunded, paymentStrategy, campaignStarterId);
             case "org":
-                return new OrgDonation(userId, amount, campaignId, donationDate, isRefunded, paymentStrategy, regularDonation);
+                return new OrgDonation(userId, amount, campaignId, donationDate, currency, isRefunded, paymentStrategy, regularDonation);
         }
         throw new IllegalArgumentException("Invalid payment strategy");
     }
@@ -132,6 +140,7 @@ public abstract class Donation {
                 ", amount=" + amount +
                 ", campaignId=" + campaignId +
                 ", donationDate=" + donationDate +
+                ", currency=" + currency +
                 ", isRefunded=" + isRefunded +
                 ", paymentStrategy=" + paymentStrategy +
                 '}';
