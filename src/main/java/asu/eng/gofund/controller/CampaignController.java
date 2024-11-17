@@ -220,7 +220,8 @@ public class CampaignController {
             @RequestParam("imageUrl") String imageUrl,
             @RequestParam("targetAmount") double targetAmount,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate,
-            Model model) {
+            Model model,
+            @CurrentUser User user) {
         try {
             Campaign campaign = new Campaign();
             campaign.setName(name);
@@ -230,6 +231,7 @@ public class CampaignController {
             campaign.setImageUrl(imageUrl);
             campaign.setTargetAmount(targetAmount);
             campaign.setEndDate(endDate);
+            campaign.setStarterId(user.getId());
             campaignRepo.save(campaign);
             return "redirect:/campaign";
         } catch (Exception e) {
