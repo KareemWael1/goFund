@@ -170,6 +170,13 @@ public class User implements Observer {
         return "user";
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof User user) {
+            return this.id.equals(user.id);
+        }
+        return false;
+    }
 
     public boolean getDeleted() {
         return deleted;
