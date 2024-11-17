@@ -29,32 +29,27 @@ public class CommentController {
     @Autowired
     private UserRepo userRepo;
 
-//    public CommentController() {
-//    }
-
     @GetMapping("")
     public String commentPage() {
         return "hello";
     }
 
-    @PostMapping (value = "",
-            consumes = MediaType. APPLICATION_FORM_URLENCODED_VALUE)
-    public String addComment(@RequestParam String content, @RequestParam String redirectUrl, @RequestParam String campaignId, @CurrentUser User user) {
+    @PostMapping(value = "/create", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public String addComment(@RequestParam("redirectUrl") String redirectUrl,
+                             @RequestParam("campaignId") String campaignId,
+                             @RequestParam("content") String content,
+                             @RequestParam(value = "parentCommentId", required = false) Long parentCommentId,
+                             @CurrentUser User user) {
         Comment comment = new Comment();
         comment.setCampaignId(Long.parseLong(campaignId));
         comment.setContent(content);
         comment.setAuthorId(user.getId());
-        comment.setTimestamp((java.sql.Date) new Date(System.currentTimeMillis()));
+        comment.setTimestamp(new java.sql.Date(System.currentTimeMillis()));
+        comment.setParentCommentId(parentCommentId != null ? parentCommentId : 0L);
         commentRepo.save(comment);
-        System.out.println("Bruh"+redirectUrl);
         return "redirect:" + redirectUrl;
     }
 
-//    @GetMapping("replies/{id}")
-//    public List<Comment> getCommentReplies(@PathVariable Long id) {
-//        return commentRepo.findByParentCommentId(id);
-//    }
-//
     @GetMapping("/{id}")
     public List<Comment> getComments(@PathVariable Long id) {
         return commentRepo.findByCampaignId(id);

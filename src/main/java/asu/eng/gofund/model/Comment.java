@@ -16,7 +16,7 @@ public class Comment {
     private Long authorId;
     private Date timestamp;
     private Long campaignId;
-    private Long parentCommentId;
+    private Long parentCommentId = 0L;
     private boolean edited;
 
     @OneToMany(mappedBy = "parentCommentId")
@@ -107,16 +107,9 @@ public class Comment {
         this.timestamp = timestamp;
     }
 
-
-
     public Long getParentCommentId() {
         return parentCommentId;
     }
-
-    public void setParentComment(Long parentCommentId) {
-        this.parentCommentId = parentCommentId;
-    }
-
 
     public boolean isEdited() {
         return edited;
@@ -146,7 +139,6 @@ public class Comment {
     }
 
 
-
     public Long getCampaignId() {
         return campaignId;
     }
@@ -154,4 +146,9 @@ public class Comment {
     public void setCampaignId(Long campaignId) {
         this.campaignId = campaignId;
     }
+
+    public void setParentCommentId(long l) {
+        this.parentCommentId = l;
+    }
+
 }

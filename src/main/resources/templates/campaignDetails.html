@@ -59,12 +59,22 @@
             </div>
           </div>
         </div>
+        <form th:action="@{/comment/create}" method="post" class="mt-2">
+          <input type="hidden" name="campaignId" th:value="${campaign.id}">
+          <input type="hidden" name="redirectUrl" th:value="${requestURI}">
+          <input type="hidden" name="parentCommentId" th:value="${comment.id}">
+          <div class="mb-3">
+            <label for="replyContent" class="form-label">Reply</label>
+            <textarea class="form-control" id="replyContent" name="content" rows="2" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-secondary">Reply</button>
+        </form>
       </div>
     </div>
   </div>
 
   <h3 class="mt-5">Add a Comment</h3>
-  <form action="/comment" method="post">
+  <form th:action="@{/comment/create}" method="post">
     <input type="hidden" name="campaignId" th:value="${campaign.id}">
     <input type="hidden" name="redirectUrl" th:value="${requestURI}">
     <div class="mb-3">
