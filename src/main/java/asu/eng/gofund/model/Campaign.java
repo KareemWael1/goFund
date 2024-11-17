@@ -55,7 +55,7 @@ public class Campaign implements Subject{
     }
 
     public Campaign(Long id, String name, String description, String imageUrl,
-                    CampaignStatus campaignStatus, Currency currency,
+                    CampaignStatus campaignStatus, CustomCurrency currency,
                     Long category, Long starterId, String bankAccountNumber, Date startDate,
                     Date endDate, Long currentAmount, List<Address> addresses, double targetAmount) {
 
@@ -76,7 +76,7 @@ public class Campaign implements Subject{
     }
 
     public Campaign(boolean isDeleted, String name, String description, String imageUrl,
-                    CampaignStatus campaignStatus, Currency currency,
+                    CampaignStatus campaignStatus, CustomCurrency currency,
                     Long category, Long starterId, String bankAccountNumber,
                     Date startDate, Date endDate, Long currentAmount, List<Address> addresses,double targetAmount) {
         this.deleted = isDeleted;
@@ -195,11 +195,11 @@ public class Campaign implements Subject{
         this.status = status.getValue();
     }
 
-    public Currency getCurrency() {
-        return Currency.getCurrency(currency);
+    public CustomCurrency getCurrency() {
+        return CustomCurrency.getCurrency(currency);
     }
 
-    public void setCurrency(Currency currency) {
+    public void setCurrency(CustomCurrency currency) {
         this.currency = currency.getValue();
     }
 

@@ -2,7 +2,7 @@ package asu.eng.gofund.controller;
 
 import asu.eng.gofund.annotations.CurrentUser;
 import asu.eng.gofund.model.*;
-import asu.eng.gofund.model.Currency;
+import asu.eng.gofund.model.CustomCurrency;
 import asu.eng.gofund.model.Filtering.CampaignFilterer;
 import asu.eng.gofund.model.Filtering.FilterByCategory;
 import asu.eng.gofund.model.Filtering.FilterByEndDate;
@@ -203,7 +203,7 @@ public class CampaignController {
     public String showCreateCampaignForm(Model model) {
         try {
             model.addAttribute("categories", CampaignCategory.values());
-            model.addAttribute("currencies", Currency.values());
+            model.addAttribute("currencies", CustomCurrency.values());
             return "createCampaign";
         } catch (Exception e) {
             model.addAttribute("error", "An error occurred while preparing the campaign creation form.");
@@ -226,7 +226,7 @@ public class CampaignController {
             campaign.setName(name);
             campaign.setDescription(description);
             campaign.setCategory(CampaignCategory.getCategory(category));
-            campaign.setCurrency(Currency.getCurrency(currency));
+            campaign.setCurrency(CustomCurrency.getCurrency(currency));
             campaign.setImageUrl(imageUrl);
             campaign.setTargetAmount(targetAmount);
             campaign.setEndDate(endDate);
