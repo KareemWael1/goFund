@@ -1,9 +1,6 @@
 package asu.eng.gofund.interceptors;
 
-import asu.eng.gofund.model.User;
-import asu.eng.gofund.repo.UserRepo;
-import asu.eng.gofund.services.CookieService;
-import asu.eng.gofund.services.JwtService;
+import asu.eng.gofund.proxies.AuthorizationProxy;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
@@ -14,25 +11,14 @@ import java.util.Optional;
 @Component
 public class AuthorizationInterceptor implements HandlerInterceptor {
 
-    private final JwtService jwtService;
-    private final UserRepo userRepo;
-    private final CookieService cookieService;
+    private final AuthorizationProxy authorizationProxy;
 
-    public AuthorizationInterceptor(JwtService jwtService, UserRepo userRepo, CookieService cookieService) {
-        this.jwtService = jwtService;
-        this.userRepo = userRepo;
-        this.cookieService = cookieService;
+    public AuthorizationInterceptor(AuthorizationProxy authorizationProxy) {
+        this.authorizationProxy = authorizationProxy;
     }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        User user = (User) request.getAttribute("user");
-        if(user == null) {
-            response.setStatus(HttpServletResponse.SC_FOUND);
-            response.setHeader("Location", "/users/login");
-            response.flushBuffer();
-            return false;
-        }
-        return true;
+        return this.authorizationProxy.authorize(request, response);
     }
 }
