@@ -1,6 +1,7 @@
 package asu.eng.gofund.model;
 
 
+import asu.eng.gofund.states.*;
 import jakarta.persistence.*;
 
 
@@ -44,18 +45,24 @@ public class Campaign implements Subject{
     @JoinColumn(name = "starterId", insertable = false, updatable = false)
     private User user;
 
+    @Transient
+    private ICampaignState state;
+
     public Campaign() {
         super();
         observers = new ArrayList<>();
+        state = new Open();
     }
 
     public Campaign(String name, String description) {
         this.name = name;
         this.description = description;
+        observers = new ArrayList<>();
+        state = new Open();
     }
 
     public Campaign(Long id, String name, String description, String imageUrl,
-                    CampaignStatus campaignStatus, CustomCurrency currency,
+                    ICampaignState state, CustomCurrency currency,
                     Long category, Long starterId, String bankAccountNumber, Date startDate,
                     Date endDate, Long currentAmount, List<Address> addresses, double targetAmount) {
 
@@ -63,7 +70,7 @@ public class Campaign implements Subject{
         this.name = name;
         this.description = description;
         this.imageUrl = imageUrl;
-        this.status = campaignStatus.getValue();
+        this.status = state.getStateValue();
         this.currency = currency.getValue();
         this.category = category;
         this.starterId = starterId;
@@ -73,17 +80,19 @@ public class Campaign implements Subject{
         this.endDate = endDate;
         this.currentAmount = currentAmount;
         this.targetAmount = targetAmount;
+        observers = new ArrayList<>();
+        this.state = state;
     }
 
     public Campaign(boolean isDeleted, String name, String description, String imageUrl,
-                    CampaignStatus campaignStatus, CustomCurrency currency,
+                    ICampaignState state, CustomCurrency currency,
                     Long category, Long starterId, String bankAccountNumber,
                     Date startDate, Date endDate, Long currentAmount, List<Address> addresses,double targetAmount) {
         this.deleted = isDeleted;
         this.name = name;
         this.description = description;
         this.imageUrl = imageUrl;
-        this.status = campaignStatus.getValue();
+        this.status = state.getStateValue();
         this.currency = currency.getValue();
         this.category = category;
         this.starterId = starterId;
@@ -93,15 +102,47 @@ public class Campaign implements Subject{
         this.endDate = endDate;
         this.currentAmount = currentAmount;
         this.targetAmount = targetAmount;
-
-
+        observers = new ArrayList<>();
+        this.state = state;
     }
+
+    @PostLoad
+    private void initializeState() {
+        if (status == null) {
+            state = new Open();
+            status = state.getStateValue();
+            return;
+        }
+        if (status == 0) {
+            state = new Open();
+        } else if (status == 1) {
+            state = new Closed();
+        } else if (status == 2) {
+            state = new Cancelled();
+        } else if (status == 3) {
+            state = new Completed();
+        } else {
+            state = new Open();
+        }
+    }
+
     public List<User> getObservers() {
         return observers;
     }
+
+    public void setState(ICampaignState state) {
+        this.state = state;
+        this.status = state.getStateValue();
+    }
+
     public void donate(double amount) {
-        this.currentAmount += amount;
-        notifyObservers();
+        if(this.state.donate(this, amount)){
+            System.out.println("Donation successful");
+            System.out.println(this.state.getStateName());
+        }
+        else{
+            throw new IllegalStateException("Cannot donate to campaign in " + state.getStateName() + " state");
+        }
     }
 
     @Override
@@ -148,7 +189,7 @@ public class Campaign implements Subject{
         return currentAmount;
     }
 
-    public void setCurrentAmount(Long currentAmount) {
+    public void setCurrentAmount(double currentAmount) {
         this.currentAmount = currentAmount;
     }
 
@@ -189,6 +230,10 @@ public class Campaign implements Subject{
 
     public CampaignStatus getStatus() {
         return CampaignStatus.getStatus(status);
+    }
+
+    public ICampaignState getState() {
+        return state;
     }
 
     public void setStatus(CampaignStatus status) {

@@ -47,7 +47,11 @@
 
   <div class="col-md-6 mb-4">
     <br>
-    <a th:href="@{/donate/{id}(id=${campaign.id})}" class="btn btn-primary">Make a Donation</a>
+    <a th:if="${campaign.getState().getStateName() == 'Open'}"
+       th:href="@{/donate/{id}(id=${campaign.id})}"
+       class="btn btn-primary">
+      Make a Donation
+    </a>
   </div>
 
   <div class="mt-3">

@@ -3,7 +3,7 @@ package asu.eng.gofund.states;
 import asu.eng.gofund.model.Campaign;
 import asu.eng.gofund.model.CampaignStatus;
 
-public class Cancelled implements ICampaignState{
+public class Completed implements ICampaignState{
     @Override
     public boolean donate(Campaign campaign, double amount) {
         return false;
@@ -11,11 +11,11 @@ public class Cancelled implements ICampaignState{
 
     @Override
     public long getStateValue() {
-        return CampaignStatus.CANCELLED.getValue();
+        return CampaignStatus.COMPLETED.getValue();
     }
 
     @Override
     public String getStateName() {
-        return "Cancelled";
+        return "Completed";
     }
 }
