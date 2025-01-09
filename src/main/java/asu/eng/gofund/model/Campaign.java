@@ -199,10 +199,15 @@ public class Campaign implements Subject{
     }
 
     public boolean closeCampaign() {
-        setStatus(CampaignStatus.CLOSED);
+        this.state.close(this);
         return true;
     }
 
+
+    public boolean reopenCampaign() {
+        this.state.reopen(this);
+        return true;
+    }
 
     public void setName(String name) {
         this.name = name;

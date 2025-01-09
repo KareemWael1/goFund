@@ -10,6 +10,16 @@ public class Completed implements ICampaignState{
     }
 
     @Override
+    public boolean close(Campaign campaign) {
+        return false;
+    }
+
+    @Override
+    public boolean reopen(Campaign campaign) {
+        return false;
+    }
+
+    @Override
     public long getStateValue() {
         return CampaignStatus.COMPLETED.getValue();
     }

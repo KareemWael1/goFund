@@ -10,6 +10,17 @@ public class Closed implements ICampaignState{
     }
 
     @Override
+    public boolean close(Campaign campaign) {
+        return false;
+    }
+
+    @Override
+    public boolean reopen(Campaign campaign) {
+        campaign.setState(new Open());
+        return true;
+    }
+
+    @Override
     public long getStateValue() {
         return CampaignStatus.CLOSED.getValue();
     }

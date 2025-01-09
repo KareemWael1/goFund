@@ -251,4 +251,34 @@ public class CampaignController {
         }
     }
 
+    @PostMapping("/{campaignId}/close")
+    public String closeCampaign(@PathVariable Long campaignId, @CurrentUser User user) {
+        try {
+            Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(campaignId);
+            if (campaign.getStarterId().equals(user.getId())) {
+                campaign.closeCampaign();
+                campaignRepo.save(campaign);
+                return campaignView.redirectToCampaignWithID(campaignId);
+            }
+            return coreView.showErrorPage();
+        } catch (Exception e) {
+            return coreView.showErrorPage();
+        }
+    }
+
+    @PostMapping("/{campaignId}/reopen")
+    public String reopenCampaign(@PathVariable Long campaignId, @CurrentUser User user) {
+        try {
+            Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(campaignId);
+            if (campaign.getStarterId().equals(user.getId())) {
+                campaign.reopenCampaign();
+                campaignRepo.save(campaign);
+                return campaignView.redirectToCampaignWithID(campaignId);
+            }
+            return coreView.showErrorPage();
+        } catch (Exception e) {
+            return coreView.showErrorPage();
+        }
+    }
+
 }
