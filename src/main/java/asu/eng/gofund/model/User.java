@@ -1,6 +1,7 @@
 package asu.eng.gofund.model;
 
 import asu.eng.gofund.controller.EmailNotification;
+import asu.eng.gofund.controller.EmailNotificationService;
 import asu.eng.gofund.util.DatabaseUtil;
 import jakarta.persistence.*;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -150,8 +151,10 @@ public class User implements Observer {
 
     @Override
     public void update(Long CampaignId, Double reachedAmount) {
-        EmailNotification.sendEmail(this.getEmail(), "Campaign Update", "The campaign with ID " +
+        EmailNotificationService emailNotification = new EmailNotificationService(this.getEmail());
+        emailNotification.sendNotification("Campaign Update", "The campaign with ID " +
                 CampaignId + " has reached " + reachedAmount + ".");
+
     }
 
     public void subscribe(Subject subject) {

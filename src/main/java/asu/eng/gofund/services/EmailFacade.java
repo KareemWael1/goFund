@@ -12,21 +12,50 @@ public class EmailFacade {
     private static String smtpHost;
     private static int smtpPort;
 
-    public static void sendEmail(String to, String subject, String body) throws MessagingException {
-        Session session = getSession();
-        Message message = new MimeMessage(session);
+    private String recipient;
+    private String subject;
+    private String body;
+    private MimeMessage message;
+
+    // Static block to configure email settings
+    static {
+        setEmailConfigurations();
+    }
+
+    public EmailFacade(String recipient) {
+        this.recipient = recipient;
+        this.session = getSession();
+        this.message = new MimeMessage(session);
+    }
+
+    // Method to set the email subject
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    // Method to set the email body
+    public void setBody(String body) {
+        this.body = body;
+    }
+
+    // Method to compose the email message
+    public void composeMessage() throws MessagingException {
         message.setFrom(new InternetAddress(username));
-        message.setRecipient(Message.RecipientType.TO, new InternetAddress(to));
+        message.setRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
         message.setSubject(subject);
         message.setText(body);
+    }
+
+    // Method to send the composed email
+    public void send() throws MessagingException {
         Transport.send(message);
+        System.out.println("Email sent successfully to " + recipient);
     }
 
     private static Session getSession() {
         if (session != null) {
             return session;
         }
-        setEmailConfigurations();
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
