@@ -1,8 +1,10 @@
 package asu.eng.gofund.controller;
 
 import asu.eng.gofund.annotations.CurrentUser;
-import asu.eng.gofund.model.Campaign;
 import asu.eng.gofund.model.Comment;
+import asu.eng.gofund.model.Commenting.CommandExecutor;
+import asu.eng.gofund.model.Commenting.CreateCommentCommand;
+import asu.eng.gofund.model.Commenting.DeleteCommentCommand;
 import asu.eng.gofund.model.User;
 import asu.eng.gofund.model.UserType;
 import asu.eng.gofund.repo.CampaignRepo;
@@ -10,7 +12,6 @@ import asu.eng.gofund.repo.UserRepo;
 import asu.eng.gofund.view.CoreView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import asu.eng.gofund.repo.CommentRepo;
 import org.springframework.ui.Model;
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,6 +32,8 @@ public class CommentController {
     private CampaignRepo campaignRepo;
     @Autowired
     private UserRepo userRepo;
+
+    private CommandExecutor commandExecutor = new CommandExecutor();
 
     CoreView coreView = new CoreView();
 
@@ -47,13 +49,15 @@ public class CommentController {
         comment.setAuthorId(user.getId());
         comment.setTimestamp(new java.sql.Date(System.currentTimeMillis()));
         comment.setParentCommentId(parentCommentId != null ? parentCommentId : 0L);
-        commentRepo.save(comment);
+        CreateCommentCommand createCommentCommand = new CreateCommentCommand(commentRepo, comment);
+        commandExecutor.executeCommand(createCommentCommand, user.getId());
+//        commentRepo.save(comment);
         return coreView.redirectToCertainPath(redirectUrl);
     }
 
     @GetMapping("/{id}")
     public List<Comment> getComments(@PathVariable Long id) {
-        return commentRepo.findByCampaignId(id);
+        return commentRepo.findByCampaignIdAndIsDeletedFalse(id);
     }
 
     @DeleteMapping("/{commentId}")
@@ -66,9 +70,12 @@ public class CommentController {
         try {
             Comment comment = commentRepo.findById(commentId).
                     orElseThrow(() -> new RuntimeException("Comment not found"));
-            if (Objects.equals(user.getId(), comment.getAuthorId()) || user.getUserType().getValue() == UserType.Admin.getValue()) {
-                comment.setIsDeleted(true);
-                commentRepo.save(comment);
+            if (Objects.equals(user.getId(), comment.getAuthorId()) ||
+                    user.getUserType().getValue() == UserType.Admin.getValue()) {
+//                comment.setIsDeleted(true);
+//                commentRepo.save(comment);
+                DeleteCommentCommand deleteCommentCommand = new DeleteCommentCommand(commentRepo, comment);
+                commandExecutor.executeCommand(deleteCommentCommand, user.getId());
                 return coreView.redirectTo(redirectURI);
             } else {
                 return coreView.redirectTo("/error");
@@ -77,5 +84,24 @@ public class CommentController {
             return coreView.redirectTo("/error");
         }
 
+    }
+
+    @PostMapping("/undo")
+    public RedirectView undo(@CurrentUser User user) {
+        commandExecutor.undoLastCommand(user.getId());
+        return coreView.redirectTo("/comment/history");
+    }
+
+    @PostMapping("/redo")
+    public RedirectView redo(@CurrentUser User user) {
+        commandExecutor.redoLastCommand(user.getId());
+        return coreView.redirectTo("/comment/history");
+    }
+
+    @GetMapping("/history")
+    public String viewHistory(@CurrentUser User user, Model model) {
+        List<String> history = commandExecutor.getAuditLog(user.getId());
+        model.addAttribute("history", history);
+        return "commentHistory"; // Corresponding view template
     }
 }
