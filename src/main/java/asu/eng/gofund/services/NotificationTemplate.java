@@ -4,16 +4,13 @@ package asu.eng.gofund.services;
 public abstract class NotificationTemplate {
 
     // Template method (final to prevent overriding)
-    public final void sendNotification(String subject, String body) {
-        prepareMessage(subject,body);
-        sendMessage();
+    public final void sendNotification(String recipient, String subject) {
+        prepareMessage(subject);
+        sendMessage(recipient);
     }
 
-    protected abstract void prepareMessage(String subject, String body);
+    protected abstract void prepareMessage(String subject);
 
-    protected abstract void sendMessage();
+    protected abstract void sendMessage(String recipient);
 
-    protected void logNotification(String recipient) {
-        System.out.println("Notification sent and logged successfully.");
-    }
 }
