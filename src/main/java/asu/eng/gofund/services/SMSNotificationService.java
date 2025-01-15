@@ -4,12 +4,12 @@ package asu.eng.gofund.services;
 public class SMSNotificationService extends NotificationTemplate {
 
     @Override
-    protected void prepareMessage(String message) {
-        System.out.println("Preparing SMS message: " + message);
+    protected void prepareMessage(String subject,String body) {
+        System.out.println("Preparing SMS message: ");
     }
 
     @Override
-    protected void sendMessage(String recipient) {
-        System.out.println("Sending SMS to phone number: " + recipient);
+    protected void sendMessage() {
+        System.out.println("Sending SMS to phone number: ");
     }
 }
