@@ -1,61 +1,35 @@
 package asu.eng.gofund.services;
-
 import javax.mail.*;
 import javax.mail.internet.*;
 import java.util.Properties;
 
-public class EmailFacade {
 
+public class EmailFacade {
     private static Session session = null;
     private static String username;
     private static String password;
     private static String smtpHost;
     private static int smtpPort;
 
-    private String recipient;
-    private String subject;
-    private String body;
-    private MimeMessage message;
 
-    // Static block to configure email settings
-    static {
-        setEmailConfigurations();
-    }
-
-    public EmailFacade(String recipient) {
-        this.recipient = recipient;
-        this.session = getSession();
-        this.message = new MimeMessage(session);
-    }
-
-    // Method to set the email subject
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
-
-    // Method to set the email body
-    public void setBody(String body) {
-        this.body = body;
-    }
-
-    // Method to compose the email message
-    public void composeMessage() throws MessagingException {
+    public static void sendEmail(String to, String subject, String body) throws MessagingException {
+        Session session = getSession();
+        Message message = new MimeMessage(session);
         message.setFrom(new InternetAddress(username));
-        message.setRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
+        message.setRecipient(Message.RecipientType.TO, new InternetAddress(to));
         message.setSubject(subject);
-        message.setText(body);
-    }
 
-    // Method to send the composed email
-    public void send() throws MessagingException {
+        // Set the content as HTML
+        message.setContent(body, "text/html; charset=utf-8");
+
         Transport.send(message);
-        System.out.println("Email sent successfully to " + recipient);
     }
 
     private static Session getSession() {
         if (session != null) {
             return session;
         }
+        setEmailConfigurations();
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
@@ -69,7 +43,6 @@ public class EmailFacade {
         });
         return session;
     }
-
     private static void setEmailConfigurations() {
         EmailFacade.username = System.getenv("EMAIL_USERNAME");
         EmailFacade.password = System.getenv("EMAIL_PASSWORD");

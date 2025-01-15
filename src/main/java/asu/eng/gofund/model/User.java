@@ -151,9 +151,8 @@ public class User implements Observer {
 
     @Override
     public void update(Long CampaignId, Double reachedAmount) {
-        EmailNotificationService emailNotification = new EmailNotificationService(this.getEmail());
-        emailNotification.sendNotification("Campaign Update", "The campaign with ID " +
-                CampaignId + " has reached " + reachedAmount + ".");
+        EmailNotificationService emailNotification = new EmailNotificationService();
+        emailNotification.sendNotification(this.getEmail(), "Donation Successful");
 
     }
 
