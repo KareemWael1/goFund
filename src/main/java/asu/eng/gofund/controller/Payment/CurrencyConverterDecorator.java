@@ -12,4 +12,6 @@ public abstract class CurrencyConverterDecorator extends Donation {
     }
 
     public abstract boolean executePayment(IPaymentStrategy paymentStrategy, Map<String, String> paymentInfo, double amount);
+
+    public abstract void adjustAmount();
 }

@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Controller
@@ -77,7 +78,7 @@ public class DonationController {
         Donation donation = Donation.createDonationFactory(donationType, userId, amount, campaignId, donationDate, selectedCurrency, false, paymentStrategy, campaignStarterId, regularDonation);
         Campaign campaign = campaignRepo.findById(donation.getCampaignId()).get();
 
-        Donation decoratedDonation = handleDifferentCurrency(donation, campaign);
+        Donation decoratedDonation = handleDifferentCurrency(donation, campaign, false);
 
         Map<String, String> credentials = new HashMap<>();
         credentials.put("cardNumber", cardNumber);
@@ -102,13 +103,30 @@ public class DonationController {
         }
     }
 
-    private Donation handleDifferentCurrency(Donation donation, Campaign campaign) {
+    private Donation handleDifferentCurrency(Donation donation, Campaign campaign, boolean refunding) {
         if (campaign.getCurrency() == CustomCurrency.USD && donation.getCurrency() == CustomCurrency.EGP) {
             donation = new EGP2USDConverter(donation);
+            if (refunding) {
+                ((EGP2USDConverter) donation).adjustAmount();
+            }
         } else if (campaign.getCurrency() == CustomCurrency.EGP && donation.getCurrency() == CustomCurrency.USD) {
             donation = new USD2EGPConverter(donation);
+            if (refunding) {
+                ((USD2EGPConverter) donation).adjustAmount();
+            }
         }
         return donation;
+    }
+
+    public double refundDonation(Long donationId, Long campaignId) {
+        Donation donation = donationRepo.findById(donationId).get();
+        if (Objects.equals(donation.getCampaignId(), campaignId)) {
+            donation.setRefunded(true);
+            donationRepo.save(donation);
+            Donation decoratedDonation = handleDifferentCurrency(donation, campaignRepo.findById(campaignId).get(), true);
+            return decoratedDonation.getAmount();
+        }
+        throw new IllegalArgumentException("Donation does not belong to the campaign");
     }
 
     @GetMapping("/{campaignId}")

@@ -20,4 +20,9 @@ public class USD2EGPConverter extends CurrencyConverterDecorator{
         }
         return decoratedDonation.executePayment(paymentStrategy, paymentInfo, this.amount);
     }
+
+    @Override
+    public void adjustAmount() {
+        this.setAmount(this.decoratedDonation.getAmount() * exchangeRate);
+    }
 }

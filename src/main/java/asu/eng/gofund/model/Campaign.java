@@ -104,6 +104,10 @@ public class Campaign implements Subject, IIterator {
         logs.add("Donation of " + amount + " was made at " + new Date());
     }
 
+    public void refundDonation(double amount) {
+        this.currentAmount -= amount;
+    }
+
     @Override
     public void registerObserver(Observer observer) {
         observers.add((User) observer);
@@ -152,11 +156,6 @@ public class Campaign implements Subject, IIterator {
 
     public void setCurrentAmount(Long currentAmount) {
         this.currentAmount = currentAmount;
-    }
-
-    public boolean refundDonation(Long donationDetailsId) {
-        //TODO: Implement this method
-        return false;
     }
 
     public boolean closeCampaign() {

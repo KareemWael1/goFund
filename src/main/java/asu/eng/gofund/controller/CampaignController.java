@@ -39,6 +39,8 @@ public class CampaignController {
     @Autowired
     private DonationRepo donationRepo;
     @Autowired
+    private DonationController donationController;
+    @Autowired
     private UserRepo userRepo;
     @Autowired
     private CommentController commentController;
@@ -168,7 +170,6 @@ public class CampaignController {
             @PathVariable Long campaignId,
             @CurrentUser User user,
             @RequestParam double amount) {
-
         try {
             Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(campaignId);
             campaign.donate(amount);
@@ -177,7 +178,22 @@ public class CampaignController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Donation failed "+ e.getMessage());
         }
+    }
 
+    @DeleteMapping("/{campaignId}/donate/{donationId}")
+    public ResponseEntity<String> refundDonation(
+            @PathVariable Long campaignId,
+            @PathVariable Long donationId) {
+        try {
+            double amount = donationController.refundDonation(donationId, campaignId);
+            System.out.println(amount);
+            Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(campaignId);
+            campaign.refundDonation(amount);
+            campaignRepo.save(campaign);
+            return ResponseEntity.ok("Donation refunded successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Refund failed " + e.getMessage());
+        }
     }
 
     @PostMapping("/{campaignId}/subscribe")
