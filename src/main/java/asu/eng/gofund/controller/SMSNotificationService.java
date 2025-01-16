@@ -12,6 +12,11 @@ public class SMSNotificationService extends NotificationTemplate {
 
     @Override
     protected void sendMessage(String recipient) {
+        // Debug Mode To avoid consuming Twilio free trial
+        if (System.getenv("DEBUG") != null && System.getenv("DEBUG").equals("true")) {
+            System.out.println("SMS sent to phone number: " + recipient);
+            return;
+        }
         SMSFacade.sendSMS(recipient, body);
     }
 }
