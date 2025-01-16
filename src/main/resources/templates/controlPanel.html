@@ -33,7 +33,7 @@
             <a class="nav-link" data-bs-toggle="tab" href="#userManagement">User Management</a>
         </li>
         <li class="nav-item" th:if="${user.getUserType().getValue() == 0}">
-            <a class="nav-link" data-bs-toggle="tab" href="#logs">Logs</a>
+            <a class="nav-link" data-bs-toggle="tab" href="#logs">Session Logs</a>
         </li>
         <li class="nav-item" th:if="${user.getUserType().getValue() <= 1}">
             <a class="nav-link" data-bs-toggle="tab" href="#campaignManagement">Campaign Management</a>
