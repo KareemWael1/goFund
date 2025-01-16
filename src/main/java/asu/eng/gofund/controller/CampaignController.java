@@ -10,6 +10,7 @@ import asu.eng.gofund.model.Sorting.CampaignSorter;
 import asu.eng.gofund.model.Sorting.SortByMostBacked;
 import asu.eng.gofund.model.Sorting.SortByMostRecent;
 import asu.eng.gofund.model.Sorting.SortByOldest;
+import asu.eng.gofund.repo.CampaignCategoryRepo;
 import asu.eng.gofund.repo.CampaignRepo;
 import asu.eng.gofund.repo.DonationRepo;
 import asu.eng.gofund.repo.UserRepo;
@@ -36,6 +37,8 @@ public class CampaignController {
     @Autowired
     private CampaignRepo campaignRepo;
     @Autowired
+    private CampaignCategoryRepo campaignCategoryRepo;
+    @Autowired
     private DonationRepo donationRepo;
     @Autowired
     private DonationController donationController;
@@ -51,7 +54,8 @@ public class CampaignController {
     public String campaignPage(Model model) {
         List<Campaign> campaigns = campaignRepo.findAllByDeletedFalse();
         model.addAttribute("campaigns", campaigns);
-        model.addAttribute("categories", CampaignCategory.values());
+        model.addAttribute("categories",
+                campaignCategoryRepo.findAll().stream().map(CampaignCategory::getName).collect(Collectors.toList()));
         return campaignView.showCampaigns();
     }
 
@@ -122,7 +126,7 @@ public class CampaignController {
     @GetMapping("/list")
     public String getAllCampaigns(
             @RequestParam(required = false) String sort,
-            @RequestParam(required = false) CampaignCategory filterCategory,
+            @RequestParam(required = false) String filterCategory,
             @RequestParam(required = false) String filterTitle,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date filterEndDate,
             Model model) {
@@ -133,7 +137,8 @@ public class CampaignController {
         CampaignFilterer campaignFilterer = new CampaignFilterer(null);
 
         if (filterCategory != null) {
-            campaignFilterer.setStrategy(new FilterByCategory(filterCategory));
+            CampaignCategory campaignCategory = campaignCategoryRepo.findByName(filterCategory);
+            campaignFilterer.setStrategy(new FilterByCategory(campaignCategory));
             campaigns = campaignFilterer.filterCampaigns(campaigns);
         }
         if (filterEndDate != null) {
@@ -157,7 +162,8 @@ public class CampaignController {
         }
 
         model.addAttribute("campaigns", campaigns);
-        model.addAttribute("categories", CampaignCategory.values());
+        model.addAttribute("categories",
+                campaignCategoryRepo.findAll().stream().map(CampaignCategory::getName).collect(Collectors.toList()));
         return campaignView.showCampaigns();
     }
 
@@ -227,7 +233,8 @@ public class CampaignController {
     @GetMapping("/create")
     public String showCreateCampaignForm(Model model) {
         try {
-            model.addAttribute("categories", CampaignCategory.values());
+            model.addAttribute("categories", campaignCategoryRepo.findAll().stream().map(CampaignCategory::getName)
+                    .collect(Collectors.toList()));
             model.addAttribute("currencies", CustomCurrency.values());
             return campaignView.showCreateCampaign();
         } catch (Exception e) {
@@ -239,7 +246,7 @@ public class CampaignController {
     public String createCampaign(
             @RequestParam("name") String name,
             @RequestParam("description") String description,
-            @RequestParam("category") Long category,
+            @RequestParam("category") String category,
             @RequestParam("currency") Long currency,
             @RequestParam("imageUrl") String imageUrl,
             @RequestParam("targetAmount") double targetAmount,
@@ -250,7 +257,7 @@ public class CampaignController {
             Campaign campaign = new Campaign();
             campaign.setName(name);
             campaign.setDescription(description);
-            campaign.setCategory(CampaignCategory.getCategory(category));
+            campaign.setCategory(campaignCategoryRepo.findByName(category));
             campaign.setCurrency(CustomCurrency.getCurrency(currency));
             campaign.setImageUrl(imageUrl);
             campaign.setTargetAmount(targetAmount);

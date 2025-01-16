@@ -6,7 +6,10 @@ import asu.eng.gofund.util.UserUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+
+import asu.eng.gofund.model.CampaignCategory;
 import asu.eng.gofund.model.User;
+import asu.eng.gofund.repo.CampaignCategoryRepo;
 import asu.eng.gofund.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -17,6 +20,9 @@ public class DataInitializer {
 
     @Autowired
     private UserTypeRepo userTypeRepo;
+
+    @Autowired
+    private CampaignCategoryRepo campaignCategoryRepo;
 
     @Autowired
     private UserRepo userRepo;
@@ -38,6 +44,16 @@ public class DataInitializer {
             }
         }
 
+        for (CampaignCategory.PredefinedCategories predefinedCategory : CampaignCategory.PredefinedCategories
+                .values()) {
+            if (campaignCategoryRepo.findByName(predefinedCategory.name()) == null) {
+                campaignCategoryRepo.save(new CampaignCategory(predefinedCategory));
+            }
+        }
+
+        if (userRepo.findByUsername(adminUsername) != null) {
+            return;
+        }
         User adminUser = new User();
         adminUser.setUsername(adminUsername);
         adminUser.setEmail(adminEmail);
