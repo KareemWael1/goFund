@@ -32,7 +32,6 @@ public class UserType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @JsonIgnore
     private Long id;
 
     private String name;
