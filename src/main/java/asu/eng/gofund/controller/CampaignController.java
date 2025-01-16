@@ -2,7 +2,6 @@ package asu.eng.gofund.controller;
 
 import asu.eng.gofund.annotations.CurrentUser;
 import asu.eng.gofund.model.*;
-import asu.eng.gofund.model.CustomCurrency;
 import asu.eng.gofund.model.Filtering.CampaignFilterer;
 import asu.eng.gofund.model.Filtering.FilterByCategory;
 import asu.eng.gofund.model.Filtering.FilterByEndDate;
@@ -63,10 +62,11 @@ public class CampaignController {
             @RequestParam("name") String name,
             @RequestParam("description") String description,
             @CurrentUser User user,
-            RedirectAttributes attributes
-    ) {
+            RedirectAttributes attributes) {
         Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(id);
-        if(campaign != null && (user.getUserType().getValue() == UserType.Admin.getValue() || campaign.getStarterId() == user.getId())) {
+        if (campaign != null
+                && (user.getUserType().comparePredefinedTypes(UserType.PredefinedType.ADMIN)
+                        || campaign.getStarterId() == user.getId())) {
             if (name != null && !name.isEmpty()) {
                 campaign.setName(name);
             }
@@ -81,9 +81,11 @@ public class CampaignController {
     }
 
     @DeleteMapping("/{id}")
-    public RedirectView deleteCampaign(@PathVariable Long id, @RequestParam("redirectURI") String redirectURI, @CurrentUser User user) {
+    public RedirectView deleteCampaign(@PathVariable Long id, @RequestParam("redirectURI") String redirectURI,
+            @CurrentUser User user) {
         Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(id);
-        if (Objects.equals(campaign.getStarterId(), user.getId()) || Objects.equals(user.getUserType().getValue(), UserType.Admin.getValue())) {
+        if (Objects.equals(campaign.getStarterId(), user.getId())
+                || user.getUserType().comparePredefinedTypes(UserType.PredefinedType.ADMIN)) {
             campaign.setDeleted(true);
             donationRepo.getAllByIsRefundedFalseAndCampaignId(id).forEach(donation -> {
                 donation.setRefunded(true);
@@ -97,11 +99,9 @@ public class CampaignController {
 
     }
 
-
-
-
     @GetMapping("/{id}")
-    public String viewCampaignDetails(@PathVariable Long id, Model model, HttpServletRequest request, @CurrentUser User user) {
+    public String viewCampaignDetails(@PathVariable Long id, Model model, HttpServletRequest request,
+            @CurrentUser User user) {
         Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(id);
         double percentage = Math.round((campaign.getCurrentAmount() / campaign.getTargetAmount()) * 100);
         List<Comment> comments = commentController.getComments(id).stream()
@@ -109,7 +109,7 @@ public class CampaignController {
                 .collect(Collectors.toList());
         if (campaign.getObservers().contains(user)) {
             model.addAttribute("subscribed", true);
-        }else {
+        } else {
             model.addAttribute("subscribed", false);
         }
         model.addAttribute("percentage", percentage);
@@ -118,8 +118,6 @@ public class CampaignController {
         model.addAttribute("requestURI", request.getRequestURI());
         return campaignView.showCampaignDetails();
     }
-
-
 
     @GetMapping("/list")
     public String getAllCampaigns(
@@ -158,12 +156,10 @@ public class CampaignController {
             campaigns = campaignSorter.sortCampaigns(campaigns);
         }
 
-
         model.addAttribute("campaigns", campaigns);
         model.addAttribute("categories", CampaignCategory.values());
         return campaignView.showCampaigns();
     }
-
 
     @PutMapping("/{campaignId}/donate")
     public ResponseEntity<String> donateToCampaign(
@@ -176,7 +172,7 @@ public class CampaignController {
             campaignRepo.save(campaign);
             return ResponseEntity.ok("Donation successful");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Donation failed "+ e.getMessage());
+            return ResponseEntity.badRequest().body("Donation failed " + e.getMessage());
         }
     }
 

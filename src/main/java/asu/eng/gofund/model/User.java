@@ -23,13 +23,12 @@ public class User implements Observer {
     private String password;
     private String phoneNumber;
     private String loginStrategy;
-    @Enumerated(EnumType.STRING)
-    private UserType userType = UserType.Basic;
+    @ManyToOne
+    @JoinColumn(name = "user_type_id")
+    private UserType userType;
     @ManyToMany(mappedBy = "observers")
     private List<Campaign> subjects;
     // Constructors
-
-
 
     public User(String name, String email, String phoneNumber, String password, String loginStrategy) {
         this.username = name;
@@ -37,6 +36,7 @@ public class User implements Observer {
         this.password = password;
         this.phoneNumber = phoneNumber;
         this.loginStrategy = loginStrategy;
+        this.userType = userType;
     }
 
     public User(Long id, String name, String email, String password, String loginStrategy) {
@@ -136,7 +136,8 @@ public class User implements Observer {
     public static User getUserByUsernameAndPassword(String username, String password) {
         try {
             String sql = "SELECT * FROM users WHERE username = ? AND password = ? AND deleted = false";
-            return DatabaseUtil.getConnection().queryForObject(sql, new BeanPropertyRowMapper<>(User.class), username, password);
+            return DatabaseUtil.getConnection().queryForObject(sql, new BeanPropertyRowMapper<>(User.class), username,
+                    password);
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -144,7 +145,8 @@ public class User implements Observer {
 
     public static User getUserByEmailAndPassword(String email, String password) {
         String sql = "SELECT * FROM users WHERE email = ? AND password = ?";
-        return DatabaseUtil.getConnection().queryForObject(sql, new BeanPropertyRowMapper<>(User.class), email, password);
+        return DatabaseUtil.getConnection().queryForObject(sql, new BeanPropertyRowMapper<>(User.class), email,
+                password);
     }
 
     public int saveUser() {
@@ -154,7 +156,8 @@ public class User implements Observer {
 
     public int updateUser() {
         String sql = "UPDATE users SET username = ?, email = ?, password = ?, WHERE id = ?";
-        return DatabaseUtil.getConnection().update(sql, this.getUsername(), this.getEmail(), this.getId(), this.getPassword());
+        return DatabaseUtil.getConnection().update(sql, this.getUsername(), this.getEmail(), this.getId(),
+                this.getPassword());
     }
 
     public static int deleteUserById(Long id) {
@@ -172,6 +175,7 @@ public class User implements Observer {
         subjects.add((Campaign) subject);
         subject.registerObserver(this);
     }
+
     public void unsubscribe(Subject subject) {
         Campaign sub = subjects.get(subjects.indexOf((Campaign) subject));
         sub.removeObserver(this);

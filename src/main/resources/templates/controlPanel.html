@@ -29,16 +29,16 @@
 <div class="container mt-5">
     <h1>Control Panel</h1>
     <ul class="nav nav-tabs">
-        <li class="nav-item" th:if="${user.getUserType().getValue() == 0}">
+        <li class="nav-item" th:if="${user.getUserType().getId() <= userTypes.get(0).getId()}">
             <a class="nav-link" data-bs-toggle="tab" href="#userManagement">User Management</a>
         </li>
-        <li class="nav-item" th:if="${user.getUserType().getValue() == 0}">
+        <li class="nav-item" th:if="${user.getUserType().getId() <= userTypes.get(0).getId()}">
             <a class="nav-link" data-bs-toggle="tab" href="#logs">Session Logs</a>
         </li>
-        <li class="nav-item" th:if="${user.getUserType().getValue() <= 1}">
+        <li class="nav-item" th:if="${user.getUserType().getId() <= userTypes.get(1).getId()}">
             <a class="nav-link" data-bs-toggle="tab" href="#campaignManagement">Campaign Management</a>
         </li>
-        <li class="nav-item" th:if="${user.getUserType().getValue() <= 2}">
+        <li class="nav-item" th:if="${user.getUserType().getId() <= userTypes.get(2).getId()}">
             <a class="nav-link active" data-bs-toggle="tab" href="#commentsManagement">Comments Management</a>
         </li>
         <li class="nav-item" th:if="${user.getUserType().getValue() == 0}">
@@ -48,14 +48,14 @@
     </ul>
 
     <div class="tab-content mt-3">
-        <div id="logs" class="tab-pane fade show" th:if="${user.getUserType().getValue() == 0}">
+        <div id="logs" class="tab-pane fade show" th:if="${user.getUserType().getId() <= userTypes.get(0).getId()}">
             <h3>Logs</h3>
             <ul class="list-group">
                 <li class="list-group-item" th:each="log : ${logs}" th:text="${log}"></li>
             </ul>
         </div>
 
-        <div id="userManagement" class="tab-pane fade" th:if="${user.getUserType().getValue() == 0}">
+        <div id="userManagement" class="tab-pane fade" th:if="${user.getUserType().getId() <= userTypes.get(0).getId()}">
             <h3>User Management</h3>
             <!-- User management table with delete and change type options -->
             <table class="table table-striped">
@@ -73,9 +73,7 @@
                     <td th:text="${user.username}"></td>
                     <td>
                         <select class="form-select" th:id="'userType' + ${user.id}">
-                            <option value="Basic" th:selected="${user.getUserType().getValue() == 2}">Basic</option>
-                            <option value="CampaignCreator" th:selected="${user.getUserType().getValue() == 1}">CampaignCreator</option>
-                            <option value="Admin" th:selected="${user.getUserType().getValue() == 0}">Admin</option>
+                            <option th:each="userType : ${userTypes}" th:value="${userType.name}" th:text="${userType.name}" th:selected="${user.getUserType().getName() == userType.name}"></option>
                         </select>
                     </td>
                     <td>
@@ -94,7 +92,7 @@
             </table>
         </div>
 
-        <div id="campaignManagement" class="tab-pane fade" th:if="${user.getUserType().getValue() <= 1}">
+        <div id="campaignManagement" class="tab-pane fade" th:if="${user.getUserType().getId() <= userTypes.get(1).getId()}">
             <h3>Campaign Management</h3>
             <table class="table table-striped">
                 <thead>
@@ -151,7 +149,7 @@
             </table>
         </div>
 
-        <div id="commentsManagement" class="tab-pane show active" th:if="${user.getUserType().getValue() <= 2}">
+        <div id="commentsManagement" class="tab-pane show active" th:if="${user.getUserType().getId() <= userTypes.get(2).getId()}">
             <h3>Comments Management</h3>
             <table class="table table-striped">
                 <thead>

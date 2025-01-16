@@ -5,8 +5,9 @@ import asu.eng.gofund.controller.Login.*;
 import asu.eng.gofund.model.User;
 import asu.eng.gofund.model.UserType;
 import asu.eng.gofund.repo.UserRepo;
+import asu.eng.gofund.repo.UserTypeRepo;
 import asu.eng.gofund.services.CookieService;
-import asu.eng.gofund.services.JwtService;
+import asu.eng.gofund.util.UserUtil;
 import asu.eng.gofund.view.AuthView;
 import asu.eng.gofund.view.CoreView;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,11 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.view.RedirectView;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
-import java.util.Objects;
-
 @Controller
 @RequestMapping("/users")
 public class UserController implements ErrorController {
@@ -30,7 +26,7 @@ public class UserController implements ErrorController {
     private UserRepo userRepo;
 
     @Autowired
-    private JwtService jwtService;
+    private UserTypeRepo userTypeRepo;
 
     @Autowired
     private CookieService cookieService;
@@ -38,19 +34,8 @@ public class UserController implements ErrorController {
     @Autowired
     private LoginManager loginManager;
 
-
     AuthView authView = new AuthView();
     CoreView coreView = new CoreView();
-
-    public static String hash(String input) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(input.getBytes());
-            return Base64.getEncoder().encodeToString(hash);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Error hashing input", e);
-        }
-    }
 
     @RequestMapping("/error")
     public String handleError(Model model) {
@@ -76,51 +61,50 @@ public class UserController implements ErrorController {
             @RequestParam String password,
             @RequestParam String confirmPassword,
             @RequestParam String strategy,
-            Model model
-    ) {
+            Model model) {
         if (!password.equals(confirmPassword)) {
             model.addAttribute("error", "Passwords do not match");
             return authView.showRegisterPage();
         }
-        if(username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || phone.isEmpty()) {
+        if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()
+                || phone.isEmpty()) {
             model.addAttribute("error", "Please fill in all fields");
             return authView.showRegisterPage();
         }
         // Phone should be + and code and phone number
-        if(!phone.matches("\\+[0-9]+")) {
+        if (!phone.matches("\\+[0-9]+")) {
             model.addAttribute("error", "Invalid phone number");
             return authView.showRegisterPage();
         }
 
-        User createdUser = userRepo.save(new User(username, email, phone, hash(password), strategy));
+        User createdUser = userRepo.save(new User(username, email, phone, UserUtil.hash(password), strategy));
 
         if (createdUser != null) {
+            createdUser.setUserType(userTypeRepo.findByName(UserType.PredefinedType.BASIC.getName()));
             return authView.redirectToLogin();
         } else {
             return authView.showRegisterPage();
         }
     }
 
-    @PostMapping(value = "/login",
-            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @PostMapping(value = "/login", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public String loginUser(
             @RequestParam("username") String username,
             @RequestParam("password") String password,
             @RequestParam("strategy") String strategy,
             Model model,
-            HttpServletResponse response
-    ) {
-        if(strategy.equals("google")) {
+            HttpServletResponse response) {
+        if (strategy.equals("google")) {
             loginManager.setStrategy(new GoogleLogin());
-        } else if(strategy.equals("facebook")) {
+        } else if (strategy.equals("facebook")) {
             loginManager.setStrategy(new FacebookLogin());
-        } else if(strategy.equals("github")) {
+        } else if (strategy.equals("github")) {
             loginManager.setStrategy(new GithubLogin());
         } else {
             loginManager.setStrategy(new UsernamePasswordLogin());
         }
 
-        loginManager.setCredentials(username, hash(password));
+        loginManager.setCredentials(username, UserUtil.hash(password));
 
         User user = loginManager.performLogin(response);
 
@@ -139,9 +123,10 @@ public class UserController implements ErrorController {
     }
 
     @DeleteMapping("/{id}")
-    public RedirectView deleteUser(@PathVariable Long id, @RequestParam("redirectURI") String redirectURI, @CurrentUser User currentUser) {
+    public RedirectView deleteUser(@PathVariable Long id, @RequestParam("redirectURI") String redirectURI,
+            @CurrentUser User currentUser) {
         User user = userRepo.findById(id).orElse(null);
-        if (Objects.equals(currentUser.getUserType().getValue(), UserType.Admin.getValue())) {
+        if (user.getUserType().comparePredefinedTypes(UserType.PredefinedType.ADMIN)) {
             user.setDeleted(true);
             userRepo.save(user);
             return new RedirectView(redirectURI);
@@ -152,10 +137,12 @@ public class UserController implements ErrorController {
     }
 
     @PutMapping("/{id}/type")
-    public RedirectView updateUserType(@PathVariable Long id, @RequestParam("userType") String userType, @RequestParam("redirectURI") String redirectURI, @CurrentUser User currentUser) {
+    public RedirectView updateUserType(@PathVariable Long id, @RequestParam("userType") String userType,
+            @RequestParam("redirectURI") String redirectURI, @CurrentUser User currentUser) {
         User user = userRepo.findById(id).orElse(null);
-        if (Objects.equals(currentUser.getUserType().getValue(), UserType.Admin.getValue())) {
-            user.setUserType(UserType.valueOf(userType));
+        UserType newUserType = userTypeRepo.findByName(userType);
+        if (user.getUserType().comparePredefinedTypes(UserType.PredefinedType.ADMIN) && newUserType != null) {
+            user.setUserType(newUserType);
             userRepo.save(user);
             return coreView.redirectTo(redirectURI);
         }

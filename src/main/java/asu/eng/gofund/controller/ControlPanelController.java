@@ -4,11 +4,14 @@ import asu.eng.gofund.annotations.CurrentUser;
 import asu.eng.gofund.model.Campaign;
 import asu.eng.gofund.model.Commenting.CommandExecutor;
 import asu.eng.gofund.model.User;
+import asu.eng.gofund.model.UserType;
 import asu.eng.gofund.repo.CampaignRepo;
 import asu.eng.gofund.repo.CommentRepo;
 import asu.eng.gofund.repo.DonationRepo;
 import asu.eng.gofund.repo.UserRepo;
+import asu.eng.gofund.repo.UserTypeRepo;
 import asu.eng.gofund.view.ControlPanelView;
+import asu.eng.gofund.view.CoreView;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -34,27 +37,35 @@ public class ControlPanelController {
     @Autowired
     private DonationRepo donationRepo;
 
+    @Autowired
+    private UserTypeRepo userTypeRepo;
+
     ControlPanelView controlPanel = new ControlPanelView();
+
+    CoreView coreView = new CoreView();
 
     @GetMapping("/control-panel")
     public String controlPanel(Model model, @CurrentUser User user, HttpServletRequest request) {
         model.addAttribute("user", user);
         model.addAttribute("redirectURI", request.getRequestURI());
+        model.addAttribute("userTypes", userTypeRepo.findAll());
 
-        if (user.getUserType().getValue() == 0) {
+        if (user.getUserType().comparePredefinedTypes(UserType.PredefinedType.ADMIN)) {
             model.addAttribute("users", userRepo.findAllByDeletedFalse());
             model.addAttribute("campaigns", campaignRepo.findAllByDeletedFalseOrderByIdAsc());
             model.addAttribute("comments", commentRepo.findAllByIsDeletedFalseOrderByIdAsc());
             model.addAttribute("logs", getLogs());
             model.addAttribute("donations", donationRepo.getAllByIsRefundedFalse());
-        } else if (user.getUserType().getValue() == 1) {
+        } else if (user.getUserType().comparePredefinedTypes(UserType.PredefinedType.CAMPAIGN_CREATOR)) {
             model.addAttribute("campaigns", campaignRepo.findByStarterIdAndDeletedFalseOrderByIdAsc(user.getId()));
             model.addAttribute("comments", commentRepo.findByAuthorIdAndIsDeletedFalseOrderByIdAsc(user.getId()));
-        } else if (user.getUserType().getValue() == 2) {
+        } else if (user.getUserType().comparePredefinedTypes(UserType.PredefinedType.BASIC)) {
             model.addAttribute("comments", commentRepo.findByAuthorIdAndIsDeletedFalseOrderByIdAsc(user.getId()));
+        } else {
+            return coreView.redirectToHomePage();
         }
 
-        return controlPanel.showControlPanel() ;
+        return controlPanel.showControlPanel();
     }
 
     public List<String> getLogs() {
@@ -71,6 +82,5 @@ public class ControlPanelController {
         }
         return logs;
     }
-
 
 }
