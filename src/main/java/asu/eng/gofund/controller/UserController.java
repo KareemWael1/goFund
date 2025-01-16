@@ -72,6 +72,7 @@ public class UserController implements ErrorController {
     public String registerUser(
             @RequestParam String username,
             @RequestParam String email,
+            @RequestParam String phone,
             @RequestParam String password,
             @RequestParam String confirmPassword,
             @RequestParam String strategy,
@@ -81,12 +82,17 @@ public class UserController implements ErrorController {
             model.addAttribute("error", "Passwords do not match");
             return authView.showRegisterPage();
         }
-        if(username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+        if(username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || phone.isEmpty()) {
             model.addAttribute("error", "Please fill in all fields");
             return authView.showRegisterPage();
         }
+        // Phone should be + and code and phone number
+        if(!phone.matches("\\+[0-9]+")) {
+            model.addAttribute("error", "Invalid phone number");
+            return authView.showRegisterPage();
+        }
 
-        User createdUser = userRepo.save(new User(username, email, hash(password), strategy));
+        User createdUser = userRepo.save(new User(username, email, phone, hash(password), strategy));
 
         if (createdUser != null) {
             return authView.redirectToLogin();
