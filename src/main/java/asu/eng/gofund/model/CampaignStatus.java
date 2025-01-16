@@ -4,7 +4,7 @@ public enum CampaignStatus {
     OPEN,
     CLOSED,
     CANCELLED,
-    COMPLETED;
+    PENDING;
 
     public Long getValue() {
         return (long) this.ordinal();
