@@ -37,10 +37,10 @@ public class CommentController {
 
     @PostMapping(value = "/create", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public String addComment(@RequestParam("redirectUrl") String redirectUrl,
-                             @RequestParam("campaignId") String campaignId,
-                             @RequestParam("content") String content,
-                             @RequestParam(value = "parentCommentId", required = false) Long parentCommentId,
-                             @CurrentUser User user) {
+            @RequestParam("campaignId") String campaignId,
+            @RequestParam("content") String content,
+            @RequestParam(value = "parentCommentId", required = false) Long parentCommentId,
+            @CurrentUser User user) {
         Comment comment = new Comment();
         comment.setCampaignId(Long.parseLong(campaignId));
         comment.setContent(content);
@@ -62,13 +62,12 @@ public class CommentController {
             @PathVariable Long commentId,
             @RequestParam("redirectURI") String redirectURI,
             @CurrentUser User user,
-            RedirectAttributes attributes
-    ) {
+            RedirectAttributes attributes) {
         try {
-            Comment comment = commentRepo.findById(commentId).
-                    orElseThrow(() -> new RuntimeException("Comment not found"));
+            Comment comment = commentRepo.findById(commentId)
+                    .orElseThrow(() -> new RuntimeException("Comment not found"));
             if (Objects.equals(user.getId(), comment.getAuthorId()) ||
-                    user.getUserType().getValue() == UserType.Admin.getValue()) {
+                    user.getUserType().comparePredefinedTypes(UserType.PredefinedType.ADMIN)) {
                 DeleteCommentCommand deleteCommentCommand = new DeleteCommentCommand(commentRepo, comment);
                 CommandExecutor.executeCommand(deleteCommentCommand, user.getId());
                 return coreView.redirectTo(redirectURI);

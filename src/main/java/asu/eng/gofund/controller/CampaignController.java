@@ -2,7 +2,6 @@ package asu.eng.gofund.controller;
 
 import asu.eng.gofund.annotations.CurrentUser;
 import asu.eng.gofund.model.*;
-import asu.eng.gofund.model.CustomCurrency;
 import asu.eng.gofund.model.Filtering.CampaignFilterer;
 import asu.eng.gofund.model.Filtering.FilterByCategory;
 import asu.eng.gofund.model.Filtering.FilterByEndDate;
@@ -11,6 +10,7 @@ import asu.eng.gofund.model.Sorting.CampaignSorter;
 import asu.eng.gofund.model.Sorting.SortByMostBacked;
 import asu.eng.gofund.model.Sorting.SortByMostRecent;
 import asu.eng.gofund.model.Sorting.SortByOldest;
+import asu.eng.gofund.repo.CampaignCategoryRepo;
 import asu.eng.gofund.repo.CampaignRepo;
 import asu.eng.gofund.repo.DonationRepo;
 import asu.eng.gofund.repo.UserRepo;
@@ -37,6 +37,8 @@ public class CampaignController {
     @Autowired
     private CampaignRepo campaignRepo;
     @Autowired
+    private CampaignCategoryRepo campaignCategoryRepo;
+    @Autowired
     private DonationRepo donationRepo;
     @Autowired
     private DonationController donationController;
@@ -52,7 +54,8 @@ public class CampaignController {
     public String campaignPage(Model model) {
         List<Campaign> campaigns = campaignRepo.findAllByDeletedFalse();
         model.addAttribute("campaigns", campaigns);
-        model.addAttribute("categories", CampaignCategory.values());
+        model.addAttribute("categories",
+                campaignCategoryRepo.findAll().stream().map(CampaignCategory::getName).collect(Collectors.toList()));
         return campaignView.showCampaigns();
     }
 
@@ -63,10 +66,11 @@ public class CampaignController {
             @RequestParam("name") String name,
             @RequestParam("description") String description,
             @CurrentUser User user,
-            RedirectAttributes attributes
-    ) {
+            RedirectAttributes attributes) {
         Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(id);
-        if(campaign != null && (user.getUserType().getValue() == UserType.Admin.getValue() || campaign.getStarterId() == user.getId())) {
+        if (campaign != null
+                && (user.getUserType().comparePredefinedTypes(UserType.PredefinedType.ADMIN)
+                        || campaign.getStarterId() == user.getId())) {
             if (name != null && !name.isEmpty()) {
                 campaign.setName(name);
             }
@@ -81,9 +85,11 @@ public class CampaignController {
     }
 
     @DeleteMapping("/{id}")
-    public RedirectView deleteCampaign(@PathVariable Long id, @RequestParam("redirectURI") String redirectURI, @CurrentUser User user) {
+    public RedirectView deleteCampaign(@PathVariable Long id, @RequestParam("redirectURI") String redirectURI,
+            @CurrentUser User user) {
         Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(id);
-        if (Objects.equals(campaign.getStarterId(), user.getId()) || Objects.equals(user.getUserType().getValue(), UserType.Admin.getValue())) {
+        if (Objects.equals(campaign.getStarterId(), user.getId())
+                || user.getUserType().comparePredefinedTypes(UserType.PredefinedType.ADMIN)) {
             campaign.setDeleted(true);
             donationRepo.getAllByIsRefundedFalseAndCampaignId(id).forEach(donation -> {
                 donation.setRefunded(true);
@@ -97,11 +103,9 @@ public class CampaignController {
 
     }
 
-
-
-
     @GetMapping("/{id}")
-    public String viewCampaignDetails(@PathVariable Long id, Model model, HttpServletRequest request, @CurrentUser User user) {
+    public String viewCampaignDetails(@PathVariable Long id, Model model, HttpServletRequest request,
+            @CurrentUser User user) {
         Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(id);
         double percentage = Math.round((campaign.getCurrentAmount() / campaign.getTargetAmount()) * 100);
         List<Comment> comments = commentController.getComments(id).stream()
@@ -109,7 +113,7 @@ public class CampaignController {
                 .collect(Collectors.toList());
         if (campaign.getObservers().contains(user)) {
             model.addAttribute("subscribed", true);
-        }else {
+        } else {
             model.addAttribute("subscribed", false);
         }
         model.addAttribute("percentage", percentage);
@@ -119,12 +123,10 @@ public class CampaignController {
         return campaignView.showCampaignDetails();
     }
 
-
-
     @GetMapping("/list")
     public String getAllCampaigns(
             @RequestParam(required = false) String sort,
-            @RequestParam(required = false) CampaignCategory filterCategory,
+            @RequestParam(required = false) String filterCategory,
             @RequestParam(required = false) String filterTitle,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date filterEndDate,
             Model model) {
@@ -135,7 +137,8 @@ public class CampaignController {
         CampaignFilterer campaignFilterer = new CampaignFilterer(null);
 
         if (filterCategory != null) {
-            campaignFilterer.setStrategy(new FilterByCategory(filterCategory));
+            CampaignCategory campaignCategory = campaignCategoryRepo.findByName(filterCategory);
+            campaignFilterer.setStrategy(new FilterByCategory(campaignCategory));
             campaigns = campaignFilterer.filterCampaigns(campaigns);
         }
         if (filterEndDate != null) {
@@ -158,12 +161,11 @@ public class CampaignController {
             campaigns = campaignSorter.sortCampaigns(campaigns);
         }
 
-
         model.addAttribute("campaigns", campaigns);
-        model.addAttribute("categories", CampaignCategory.values());
+        model.addAttribute("categories",
+                campaignCategoryRepo.findAll().stream().map(CampaignCategory::getName).collect(Collectors.toList()));
         return campaignView.showCampaigns();
     }
-
 
     @PutMapping("/{campaignId}/donate")
     public ResponseEntity<String> donateToCampaign(
@@ -176,7 +178,7 @@ public class CampaignController {
             campaignRepo.save(campaign);
             return ResponseEntity.ok("Donation successful");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Donation failed "+ e.getMessage());
+            return ResponseEntity.badRequest().body("Donation failed " + e.getMessage());
         }
     }
 
@@ -231,7 +233,8 @@ public class CampaignController {
     @GetMapping("/create")
     public String showCreateCampaignForm(Model model) {
         try {
-            model.addAttribute("categories", CampaignCategory.values());
+            model.addAttribute("categories", campaignCategoryRepo.findAll().stream().map(CampaignCategory::getName)
+                    .collect(Collectors.toList()));
             model.addAttribute("currencies", CustomCurrency.values());
             return campaignView.showCreateCampaign();
         } catch (Exception e) {
@@ -243,7 +246,7 @@ public class CampaignController {
     public String createCampaign(
             @RequestParam("name") String name,
             @RequestParam("description") String description,
-            @RequestParam("category") Long category,
+            @RequestParam("category") String category,
             @RequestParam("currency") Long currency,
             @RequestParam("imageUrl") String imageUrl,
             @RequestParam("targetAmount") double targetAmount,
@@ -254,7 +257,7 @@ public class CampaignController {
             Campaign campaign = new Campaign();
             campaign.setName(name);
             campaign.setDescription(description);
-            campaign.setCategory(CampaignCategory.getCategory(category));
+            campaign.setCategory(campaignCategoryRepo.findByName(category));
             campaign.setCurrency(CustomCurrency.getCurrency(currency));
             campaign.setImageUrl(imageUrl);
             campaign.setTargetAmount(targetAmount);

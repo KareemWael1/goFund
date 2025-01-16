@@ -17,7 +17,8 @@ public class WebConfig implements WebMvcConfigurer {
     private final AuthenticationInterceptor authenticationInterceptor;
     private final AuthorizationInterceptor authorizationInterceptor;
 
-    public WebConfig(CurrentUserArgumentResolver currentUserArgumentResolver, AuthenticationInterceptor authenticationInterceptor, AuthorizationInterceptor authorizationInterceptor) {
+    public WebConfig(CurrentUserArgumentResolver currentUserArgumentResolver,
+            AuthenticationInterceptor authenticationInterceptor, AuthorizationInterceptor authorizationInterceptor) {
         this.currentUserArgumentResolver = currentUserArgumentResolver;
         this.authenticationInterceptor = authenticationInterceptor;
         this.authorizationInterceptor = authorizationInterceptor;
@@ -35,6 +36,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(authorizationInterceptor)
                 .addPathPatterns("/control-panel")
                 .addPathPatterns("/users/logout")
-                .addPathPatterns("/donate/**");
+                .addPathPatterns("/donate/**")
+                .addPathPatterns("/user-type/**");
     }
 }

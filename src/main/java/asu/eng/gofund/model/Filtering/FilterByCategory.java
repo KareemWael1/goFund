@@ -16,7 +16,7 @@ public class FilterByCategory implements ICampaignFilteringStrategy {
     @Override
     public List<Campaign> filter(List<Campaign> campaigns) {
         return campaigns.stream()
-                .filter(campaign -> campaign.getCategory().equals(category))
+                .filter(campaign -> campaign.getCategory().getName().equals(category.getName()))
                 .collect(Collectors.toList());
     }
 }

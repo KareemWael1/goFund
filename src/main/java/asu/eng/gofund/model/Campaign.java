@@ -1,8 +1,6 @@
 package asu.eng.gofund.model;
 
-
 import jakarta.persistence.*;
-
 
 import java.util.*;
 
@@ -17,25 +15,20 @@ public class Campaign implements Subject, IIterator {
     private String imageUrl;
     private Long status = 0L;
     private Long currency = 0L;
-    private Long category = 0L;
+    @ManyToOne
+    @JoinColumn(name = "campaign_category_id")
+    private CampaignCategory category;
     private Long starterId;
     private Date startDate = new Date();
     private Date endDate;
     protected double currentAmount = 0;
     private double targetAmount;
     @ManyToMany
-    @JoinTable(name = "address_campaign",
-            joinColumns = @JoinColumn(name = "campaign_id"),
-            inverseJoinColumns = @JoinColumn(name = "address_id")
-    )
+    @JoinTable(name = "address_campaign", joinColumns = @JoinColumn(name = "campaign_id"), inverseJoinColumns = @JoinColumn(name = "address_id"))
     private List<Address> addresses;
     private String bankAccountNumber;
     @ManyToMany
-    @JoinTable(
-            name = "subject_observer",
-            joinColumns = @JoinColumn(name = "subject_id"),
-            inverseJoinColumns = @JoinColumn(name = "observer_id")
-    )
+    @JoinTable(name = "subject_observer", joinColumns = @JoinColumn(name = "subject_id"), inverseJoinColumns = @JoinColumn(name = "observer_id"))
     private final Set<User> observers = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -55,9 +48,9 @@ public class Campaign implements Subject, IIterator {
     }
 
     public Campaign(Long id, String name, String description, String imageUrl,
-                    CampaignStatus campaignStatus, CustomCurrency currency,
-                    Long category, Long starterId, String bankAccountNumber, Date startDate,
-                    Date endDate, Long currentAmount, List<Address> addresses, double targetAmount) {
+            CampaignStatus campaignStatus, CustomCurrency currency,
+            CampaignCategory category, Long starterId, String bankAccountNumber, Date startDate,
+            Date endDate, Long currentAmount, List<Address> addresses, double targetAmount) {
 
         this.id = id;
         this.name = name;
@@ -76,9 +69,9 @@ public class Campaign implements Subject, IIterator {
     }
 
     public Campaign(boolean isDeleted, String name, String description, String imageUrl,
-                    CampaignStatus campaignStatus, CustomCurrency currency,
-                    Long category, Long starterId, String bankAccountNumber,
-                    Date startDate, Date endDate, Long currentAmount, List<Address> addresses,double targetAmount) {
+            CampaignStatus campaignStatus, CustomCurrency currency,
+            CampaignCategory category, Long starterId, String bankAccountNumber,
+            Date startDate, Date endDate, Long currentAmount, List<Address> addresses, double targetAmount) {
         this.deleted = isDeleted;
         this.name = name;
         this.description = description;
@@ -95,9 +88,11 @@ public class Campaign implements Subject, IIterator {
         this.targetAmount = targetAmount;
 
     }
+
     public Set<User> getObservers() {
         return observers;
     }
+
     public void donate(double amount) {
         this.currentAmount += amount;
         notifyObservers();
@@ -126,6 +121,7 @@ public class Campaign implements Subject, IIterator {
             observer.update(this.getName(), this.getCurrentAmount());
         }
     }
+
     public double getTargetAmount() {
         return targetAmount;
     }
@@ -162,7 +158,6 @@ public class Campaign implements Subject, IIterator {
         setStatus(CampaignStatus.CLOSED);
         return true;
     }
-
 
     public void setName(String name) {
         this.name = name;
@@ -205,11 +200,11 @@ public class Campaign implements Subject, IIterator {
     }
 
     public CampaignCategory getCategory() {
-        return CampaignCategory.getCategory(category);
+        return this.category;
     }
 
     public void setCategory(CampaignCategory category) {
-        this.category = category.getValue();
+        this.category = category;
     }
 
     public Long getStarterId() {
@@ -235,7 +230,6 @@ public class Campaign implements Subject, IIterator {
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
     }
-
 
     public String getBankAccountNumber() {
         return bankAccountNumber;

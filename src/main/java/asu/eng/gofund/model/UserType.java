@@ -1,19 +1,70 @@
 package asu.eng.gofund.model;
 
-public enum UserType {
-    Admin(0),
-    CampaignCreator(1),
-    Basic(2);
+import jakarta.persistence.*;
 
-    private final int value;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-    UserType(final int newValue) {
-        value = newValue;
+@Entity
+@Table(name = "user_types")
+public class UserType {
+
+    public enum PredefinedType {
+        ADMIN("Admin", 1),
+        CAMPAIGN_CREATOR("CampaignCreator", 2),
+        BASIC("Basic", 3);
+
+        private final String name;
+        private final int id;
+
+        PredefinedType(String name, int id) {
+            this.name = name;
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public int getId() {
+            return id;
+        }
     }
 
-    public int getValue() { return value; }
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
-    public static UserType getUserType(Long userType) {
-        return UserType.values()[userType.intValue()];
+    private String name;
+
+    public UserType() {
+    }
+
+    public UserType(final String name) {
+        this.name = name;
+    }
+
+    public UserType(final PredefinedType predefinedType) {
+        this.name = predefinedType.getName();
+        this.id = (long) predefinedType.getId();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean compare(UserType userType) {
+        return this.id.equals(userType.getId());
+    }
+
+    public boolean comparePredefinedTypes(PredefinedType predefinedType) {
+        return this.name.equalsIgnoreCase(predefinedType.getName());
     }
 }

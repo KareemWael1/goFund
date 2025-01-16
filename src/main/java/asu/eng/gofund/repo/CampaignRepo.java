@@ -13,25 +13,25 @@ import java.util.List;
 @Repository
 public interface CampaignRepo extends JpaRepository<Campaign, Long> {
     List<Campaign> findAllByDeletedFalse();
+
     List<Campaign> findAllByDeletedFalseOrderByIdAsc();
 
     Campaign findCampaignByIdAndDeletedFalse(Long id);
+
     @Query("SELECT c FROM Campaign c WHERE (:category IS NULL OR c.category = :category) " +
             "AND (:title IS NULL OR c.name LIKE %:title%) " +
             "AND (:endDate IS NULL OR c.endDate = :endDate)")
     List<Campaign> findByFilters(@Param("category") CampaignCategory category,
-                                 @Param("title") String title,
-                                 @Param("endDate") Date endDate);
+            @Param("title") String title,
+            @Param("endDate") Date endDate);
 
     @Query("SELECT c FROM Campaign c ORDER BY c.startDate DESC")
     List<Campaign> findAllOrderByMostRecent();
 
     @Query("SELECT c FROM Campaign c ORDER BY c.startDate ASC")
     List<Campaign> findAllOrderByOldest();
-//    List<Campaign> findAllByisDeletedFalse();
-//    Campaign getCampaignByIdAndisDeletedFalse(Long id);
-
-
+    // List<Campaign> findAllByisDeletedFalse();
+    // Campaign getCampaignByIdAndisDeletedFalse(Long id);
 
     @Query("SELECT c FROM Campaign c ORDER BY c.currentAmount DESC")
     List<Campaign> findAllOrderByMostBacked();

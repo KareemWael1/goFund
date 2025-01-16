@@ -39,7 +39,7 @@
   <h1 th:text="${campaign.name}">Campaign Name</h1>
   <img th:src="${campaign.imageUrl}" alt="Campaign Image" class="img-fluid mb-3">
   <p th:text="${campaign.description}">Campaign Description</p>
-  <p><strong>Category:</strong> <span th:text="${campaign.category}"></span></p>
+  <p><strong>Category:</strong> <span th:text="${campaign.category.getName()}"></span></p>
   <p><strong>Currency:</strong> <span th:text="${campaign.currency}"></span></p>
   <p><strong>Target Amount:</strong> <span th:text="${campaign.targetAmount}"></span></p>
   <p><strong>Current Amount:</strong> <span th:text="${campaign.currentAmount}"></span></p>
