@@ -41,7 +41,7 @@
         <li class="nav-item" th:if="${user.getUserType().getId() <= userTypes.get(2).getId()}">
             <a class="nav-link active" data-bs-toggle="tab" href="#commentsManagement">Comments Management</a>
         </li>
-        <li class="nav-item" th:if="${user.getUserType().getValue() == 0}">
+        <li class="nav-item" th:if="${user.getUserType().getId() <= userTypes.get(0).getId()}">
             <a class="nav-link" data-bs-toggle="tab" href="#donationAdmin">Donation Admin</a>
         </li>
 
@@ -176,7 +176,7 @@
             </table>
         </div>
 
-        <div id="donationAdmin" class="tab-pane fade" th:if="${user.getUserType().getValue() == 0}">
+        <div id="donationAdmin" class="tab-pane fade" th:if="${user.getUserType().getId() <= userTypes.get(1).getId()}">
             <h3>Donation Admin</h3>
             <table class="table table-striped">
                 <thead>
