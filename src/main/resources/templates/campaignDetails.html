@@ -50,7 +50,19 @@
 
   <div class="col-md-6 mb-4">
     <br>
-    <a th:href="@{/donate/{id}(id=${campaign.id})}" class="btn btn-primary">Make a Donation</a>
+    <a th:if="${campaign.getState().getStateName() == 'Open'}"
+       th:href="@{/donate/{id}(id=${campaign.id})}"
+       class="btn btn-primary">
+      Make a Donation
+    </a>
+    <form th:action="@{|/campaign/${campaign.id}/close|}" method="post"
+          th:if="${campaign.getState().getStateName() != 'Closed' && campaign.getState().getStateName() != 'Completed'}">
+      <button type="submit" class="btn btn-primary">Close Campaign</button>
+    </form>
+    <form th:action="@{|/campaign/${campaign.id}/reopen|}" method="post"
+          th:if="${campaign.getState().getStateName() == 'Closed' || campaign.getState().getStateName() == 'Cancelled'}">
+      <button type="submit" class="btn btn-primary">Reopen Campaign</button>
+    </form>
   </div>
 
   <div class="mt-3">
