@@ -1,6 +1,8 @@
 package asu.eng.gofund.controller;
 
 import asu.eng.gofund.annotations.CurrentUser;
+import asu.eng.gofund.model.Campaign;
+import asu.eng.gofund.model.Commenting.CommandExecutor;
 import asu.eng.gofund.model.User;
 import asu.eng.gofund.repo.CampaignRepo;
 import asu.eng.gofund.repo.CommentRepo;
@@ -11,6 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 @Controller
 public class ControlPanelController {
@@ -35,6 +41,7 @@ public class ControlPanelController {
             model.addAttribute("users", userRepo.findAllByDeletedFalse());
             model.addAttribute("campaigns", campaignRepo.findAllByDeletedFalseOrderByIdAsc());
             model.addAttribute("comments", commentRepo.findAllByIsDeletedFalseOrderByIdAsc());
+            model.addAttribute("logs", getLogs());
         } else if (user.getUserType().getValue() == 1) {
             model.addAttribute("campaigns", campaignRepo.findByStarterIdAndDeletedFalseOrderByIdAsc(user.getId()));
             model.addAttribute("comments", commentRepo.findByAuthorIdAndIsDeletedFalseOrderByIdAsc(user.getId()));
@@ -44,4 +51,21 @@ public class ControlPanelController {
 
         return controlPanel.showControlPanel() ;
     }
+
+    public List<String> getLogs() {
+        List<String> logs = new ArrayList<>();
+        CommandExecutor commandExecutor = new CommandExecutor();
+        Iterator<String> iterator = commandExecutor.createLogsIterator();
+        Campaign campaign = new Campaign();
+        Iterator<String> iterator1 = campaign.createLogsIterator();
+        while (iterator.hasNext()) {
+            logs.add(iterator.next());
+        }
+        while (iterator1.hasNext()) {
+            logs.add(iterator1.next());
+        }
+        return logs;
+    }
+
+
 }

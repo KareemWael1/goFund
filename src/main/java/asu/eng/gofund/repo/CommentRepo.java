@@ -12,7 +12,7 @@ public interface CommentRepo extends JpaRepository<Comment, Long> {
 
     List<Comment> findByParentCommentId(Long parentCommentId);
 
-    List<Comment> findByCampaignId(Long campaignId);
+    List<Comment> findByCampaignIdAndIsDeletedFalse(Long campaignId);
 
     List<Comment> findByAuthorIdAndIsDeletedFalseOrderByIdAsc(Long authorId);
 }

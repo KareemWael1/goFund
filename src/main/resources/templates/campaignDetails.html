@@ -19,6 +19,9 @@
           <a class="nav-link" href="/control-panel">Control Panel</a>
         </li>
         <li class="nav-item" th:if="${user}">
+          <a class="nav-link" href="/comment/history">Comments History</a>
+        </li>
+        <li class="nav-item" th:if="${user}">
           <a class="nav-link" href="/users/logout">Logout</a>
         </li>
         <li class="nav-item" th:unless="${user}">
@@ -78,7 +81,7 @@
       <div class="card-body">
         <p class="card-text" th:text="${comment.content}">Comment content</p>
         <p class="card-text"><small class="text-muted">Posted by User <span th:text="${comment.authorId}"></span> on <span th:text="${#dates.format(comment.timestamp, 'yyyy-MM-dd HH:mm')}"></span></small></p>
-        <div th:each="reply : ${comment.replies}" class="ms-3">
+        <div th:each="reply : ${comment.getReplies()}" class="ms-3">
           <div class="card mt-2">
             <div class="card-body">
               <p class="card-text" th:text="${reply.content}">Reply content</p>

@@ -3,6 +3,7 @@ package asu.eng.gofund.model;
 import jakarta.persistence.*;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -27,7 +28,13 @@ public class Comment {
     private List<Comment> replies;
 
     public List<Comment> getReplies() {
-        return replies;
+        List<Comment> notDeletedReplies = new ArrayList<>();
+        for (Comment reply : replies) {
+            if (!reply.isDeleted) {
+                notDeletedReplies.add(reply);
+            }
+        }
+        return notDeletedReplies;
     }
 
     public void setReplies(List<Comment> replies) {

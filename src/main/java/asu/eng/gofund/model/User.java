@@ -1,6 +1,7 @@
 package asu.eng.gofund.model;
 
-import asu.eng.gofund.controller.EmailNotification;
+import asu.eng.gofund.controller.EmailNotificationService;
+import asu.eng.gofund.controller.SMSNotificationService;
 import asu.eng.gofund.util.DatabaseUtil;
 import jakarta.persistence.*;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -20,6 +21,7 @@ public class User implements Observer {
     private String username;
     private String email;
     private String password;
+    private String phoneNumber;
     private String loginStrategy;
     @Enumerated(EnumType.STRING)
     private UserType userType = UserType.Basic;
@@ -29,10 +31,11 @@ public class User implements Observer {
 
 
 
-    public User(String name, String email, String password, String loginStrategy) {
+    public User(String name, String email, String phoneNumber, String password, String loginStrategy) {
         this.username = name;
         this.email = email;
         this.password = password;
+        this.phoneNumber = phoneNumber;
         this.loginStrategy = loginStrategy;
     }
 
@@ -97,6 +100,14 @@ public class User implements Observer {
         this.userType = userType;
     }
 
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -104,6 +115,9 @@ public class User implements Observer {
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
+                ", loginStrategy='" + loginStrategy + '\'' +
+                ", userType=" + userType +
+                ", phoneNumber='" + phoneNumber + '\'' +
                 '}';
     }
 
@@ -149,9 +163,11 @@ public class User implements Observer {
     }
 
     @Override
-    public void update(Long CampaignId, Double reachedAmount) {
-        EmailNotification.sendEmail(this.getEmail(), "Campaign Update", "The campaign with ID " +
-                CampaignId + " has reached " + reachedAmount + ".");
+    public void update(String campaignName, Double reachedAmount) {
+        EmailNotificationService emailNotification = new EmailNotificationService();
+        SMSNotificationService smsNotification = new SMSNotificationService();
+        emailNotification.sendNotification(this.getEmail(), "Donation Update", campaignName, reachedAmount);
+        smsNotification.sendNotification(this.getPhoneNumber(), "Donation Update", campaignName, reachedAmount);
     }
 
     public void subscribe(Subject subject) {
