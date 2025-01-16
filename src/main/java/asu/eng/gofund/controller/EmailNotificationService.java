@@ -85,10 +85,8 @@ public class EmailNotificationService extends NotificationTemplate {
     @Override
     protected void sendMessage(String recipient) {
         try {
-            System.out.println("Composing and sending the email...");
             EmailFacade.sendEmail(recipient, this.subject, this.body);
         } catch (MessagingException e) {
-            System.err.println("Failed to send email: " + e.getMessage());
         }
     }
 }

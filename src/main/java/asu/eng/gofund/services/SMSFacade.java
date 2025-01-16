@@ -21,7 +21,6 @@ public class SMSFacade {
                 message
         ).create();
 
-        System.out.println("SMS sent successfully to " + to);
     }
 
     private static void setSMSConfigurations() {

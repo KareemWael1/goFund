@@ -91,6 +91,10 @@ public class DonationController {
             donationRepo.save(donation);
             campaign.donate(decoratedDonation.getAmount());
             campaignRepo.save(campaign);
+            EmailNotificationService emailNotificationService = new EmailNotificationService();
+            emailNotificationService.sendNotification(userRepo.findById(campaign.getStarterId()).get().getEmail(),"Donation Successful", campaign.getName(), amount);
+            SMSNotificationService smsNotification = new SMSNotificationService();
+            smsNotification.sendNotification(userRepo.findById(campaign.getStarterId()).get().getPhoneNumber(), "Donation Successful", campaign.getName(), amount);
             return campaignView.redirectToCampaignWithID(campaignId);
         } else {
             model.addAttribute("error", "An error occurred while making the donation.");

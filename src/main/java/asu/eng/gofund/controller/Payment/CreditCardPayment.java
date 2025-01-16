@@ -15,8 +15,6 @@ public class CreditCardPayment implements IPaymentStrategy{
         cvv = paymentInfo.get("cvv");
         cardHolderName = paymentInfo.get("nameOnCard");
 
-        // Payment processing logic
-        System.out.println("Credit Card Payment Successful");
         return true;
     }
 }

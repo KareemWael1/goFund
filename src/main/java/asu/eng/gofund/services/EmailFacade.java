@@ -48,5 +48,6 @@ public class EmailFacade {
         EmailFacade.password = System.getenv("EMAIL_PASSWORD");
         EmailFacade.smtpHost = System.getenv("EMAIL_SMTP_HOST");
         EmailFacade.smtpPort = Integer.parseInt(System.getenv("EMAIL_SMTP_PORT"));
+
     }
 }
