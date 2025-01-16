@@ -1,5 +1,6 @@
 package asu.eng.gofund.model;
 
+import asu.eng.gofund.State.IDonationState;
 import asu.eng.gofund.controller.Payment.CreditCardPayment;
 import asu.eng.gofund.controller.Payment.FawryPayment;
 import asu.eng.gofund.controller.Payment.IPaymentStrategy;
@@ -24,6 +25,9 @@ public abstract class Donation {
     protected CustomCurrency currency;
     protected boolean isRefunded;
     protected String paymentStrategy;
+
+    @Transient
+    public IDonationState ref;
 
     public Donation() {
     }
@@ -144,5 +148,17 @@ public abstract class Donation {
                 ", isRefunded=" + isRefunded +
                 ", paymentStrategy=" + paymentStrategy +
                 '}';
+    }
+
+    public void setState(IDonationState state){
+        this.ref = state;
+    }
+
+    public void executeNextState(){
+        ref.NextState(this);
+    }
+
+    public void executePrevState(){
+        ref.PrevState(this);
     }
 }
