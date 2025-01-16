@@ -151,11 +151,9 @@ public class User implements Observer {
     }
 
     @Override
-    public void update(Long CampaignId, Double reachedAmount) {
+    public void update(String campaignName, Double reachedAmount) {
         EmailNotificationService emailNotification = new EmailNotificationService();
-        SMSNotificationService smsNotification = new SMSNotificationService();
-        emailNotification.sendNotification(this.getEmail(), "Donation Successful");
-        smsNotification.sendNotification(this.getEmail(), "Donation Successful");
+        emailNotification.sendNotification(this.getEmail(), "Donation Update", campaignName, reachedAmount);
     }
 
     public void subscribe(Subject subject) {

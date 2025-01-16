@@ -117,7 +117,7 @@ public class Campaign implements Subject{
     @Override
     public void notifyObservers() {
         for (Observer observer : observers) {
-            observer.update(this.getId(), this.getCurrentAmount());
+            observer.update(this.getName(), this.getCurrentAmount());
         }
     }
     public double getTargetAmount() {
