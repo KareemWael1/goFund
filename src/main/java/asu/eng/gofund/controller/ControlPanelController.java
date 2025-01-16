@@ -6,6 +6,7 @@ import asu.eng.gofund.model.Commenting.CommandExecutor;
 import asu.eng.gofund.model.User;
 import asu.eng.gofund.repo.CampaignRepo;
 import asu.eng.gofund.repo.CommentRepo;
+import asu.eng.gofund.repo.DonationRepo;
 import asu.eng.gofund.repo.UserRepo;
 import asu.eng.gofund.view.ControlPanelView;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,6 +31,9 @@ public class ControlPanelController {
     @Autowired
     private CommentRepo commentRepo;
 
+    @Autowired
+    private DonationRepo donationRepo;
+
     ControlPanelView controlPanel = new ControlPanelView();
 
     @GetMapping("/control-panel")
@@ -42,6 +46,7 @@ public class ControlPanelController {
             model.addAttribute("campaigns", campaignRepo.findAllByDeletedFalseOrderByIdAsc());
             model.addAttribute("comments", commentRepo.findAllByIsDeletedFalseOrderByIdAsc());
             model.addAttribute("logs", getLogs());
+            model.addAttribute("donations", donationRepo.getAllByIsRefundedFalse());
         } else if (user.getUserType().getValue() == 1) {
             model.addAttribute("campaigns", campaignRepo.findByStarterIdAndDeletedFalseOrderByIdAsc(user.getId()));
             model.addAttribute("comments", commentRepo.findByAuthorIdAndIsDeletedFalseOrderByIdAsc(user.getId()));

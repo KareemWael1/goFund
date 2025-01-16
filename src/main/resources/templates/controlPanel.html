@@ -41,6 +41,9 @@
         <li class="nav-item" th:if="${user.getUserType().getValue() <= 2}">
             <a class="nav-link active" data-bs-toggle="tab" href="#commentsManagement">Comments Management</a>
         </li>
+        <li class="nav-item" th:if="${user.getUserType().getValue() == 0}">
+            <a class="nav-link" data-bs-toggle="tab" href="#donationAdmin">Donation Admin</a>
+        </li>
 
     </ul>
 
@@ -175,7 +178,38 @@
             </table>
         </div>
 
-
+        <div id="donationAdmin" class="tab-pane fade" th:if="${user.getUserType().getValue() == 0}">
+            <h3>Donation Admin</h3>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Donation ID</th>
+                    <th>Amount</th>
+                    <th>Currency</th>
+                    <th>Donation Date</th>
+                    <th>Donor ID</th>
+                    <th>Campaign ID</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="donation : ${donations}">
+                    <td th:text="${donation.id}"></td>
+                    <td th:text="${donation.amount}"></td>
+                    <td th:text="${donation.currency}"></td>
+                    <td th:text="${donation.donationDate}"></td>
+                    <td th:text="${donation.donorId}"></td>
+                    <td th:text="${donation.campaignId}"></td>
+                    <td>
+                        <form th:action="@{/campaign/{campaignId}/donate/{donationId}(campaignId=${donation.campaignId},donationId=${donation.id})}" th:method="delete" style="display: inline;">
+                            <input type="hidden" name="redirectURI" th:value="${redirectURI}">
+                            <button type="submit" class="btn btn-warning btn-sm" th:disabled="${donation.isRefunded}">Refund</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 

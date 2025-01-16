@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface DonationRepo extends JpaRepository<Donation, Long> {
     List<Donation> getAllByIsRefundedFalseAndCampaignId(Long campaignId);
+
+    List<Donation> getAllByIsRefundedFalse();
 }
