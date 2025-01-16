@@ -33,8 +33,6 @@ public class CommentController {
     @Autowired
     private UserRepo userRepo;
 
-    private CommandExecutor commandExecutor = new CommandExecutor();
-
     CoreView coreView = new CoreView();
 
     @PostMapping(value = "/create", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -50,8 +48,7 @@ public class CommentController {
         comment.setTimestamp(new java.sql.Date(System.currentTimeMillis()));
         comment.setParentCommentId(parentCommentId != null ? parentCommentId : 0L);
         CreateCommentCommand createCommentCommand = new CreateCommentCommand(commentRepo, comment);
-        commandExecutor.executeCommand(createCommentCommand, user.getId());
-//        commentRepo.save(comment);
+        CommandExecutor.executeCommand(createCommentCommand, user.getId());
         return coreView.redirectToCertainPath(redirectUrl);
     }
 
@@ -72,10 +69,8 @@ public class CommentController {
                     orElseThrow(() -> new RuntimeException("Comment not found"));
             if (Objects.equals(user.getId(), comment.getAuthorId()) ||
                     user.getUserType().getValue() == UserType.Admin.getValue()) {
-//                comment.setIsDeleted(true);
-//                commentRepo.save(comment);
                 DeleteCommentCommand deleteCommentCommand = new DeleteCommentCommand(commentRepo, comment);
-                commandExecutor.executeCommand(deleteCommentCommand, user.getId());
+                CommandExecutor.executeCommand(deleteCommentCommand, user.getId());
                 return coreView.redirectTo(redirectURI);
             } else {
                 return coreView.redirectTo("/error");
@@ -88,19 +83,19 @@ public class CommentController {
 
     @PostMapping("/undo")
     public RedirectView undo(@CurrentUser User user) {
-        commandExecutor.undoLastCommand(user.getId());
+        CommandExecutor.undoLastCommand(user.getId());
         return coreView.redirectTo("/comment/history");
     }
 
     @PostMapping("/redo")
     public RedirectView redo(@CurrentUser User user) {
-        commandExecutor.redoLastCommand(user.getId());
+        CommandExecutor.redoLastCommand(user.getId());
         return coreView.redirectTo("/comment/history");
     }
 
     @GetMapping("/history")
     public String viewHistory(@CurrentUser User user, Model model) {
-        List<String> history = commandExecutor.getAuditLog(user.getId());
+        List<String> history = CommandExecutor.getAuditLog(user.getId());
         model.addAttribute("history", history);
         return "commentHistory"; // Corresponding view template
     }

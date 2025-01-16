@@ -4,12 +4,10 @@ package asu.eng.gofund.model;
 import jakarta.persistence.*;
 
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
-public class Campaign implements Subject{
+public class Campaign implements Subject, IIterator {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -38,20 +36,22 @@ public class Campaign implements Subject{
             joinColumns = @JoinColumn(name = "subject_id"),
             inverseJoinColumns = @JoinColumn(name = "observer_id")
     )
-    private List<User> observers;
+    private final Set<User> observers = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "starterId", insertable = false, updatable = false)
     private User user;
+    @Transient
+    private static final ArrayList<String> logs = new ArrayList<>();
 
     public Campaign() {
         super();
-        observers = new ArrayList<>();
     }
 
     public Campaign(String name, String description) {
         this.name = name;
         this.description = description;
+
     }
 
     public Campaign(Long id, String name, String description, String imageUrl,
@@ -94,24 +94,26 @@ public class Campaign implements Subject{
         this.currentAmount = currentAmount;
         this.targetAmount = targetAmount;
 
-
     }
-    public List<User> getObservers() {
+    public Set<User> getObservers() {
         return observers;
     }
     public void donate(double amount) {
         this.currentAmount += amount;
         notifyObservers();
+        logs.add("Donation of " + amount + " was made at " + new Date());
     }
 
     @Override
     public void registerObserver(Observer observer) {
         observers.add((User) observer);
+        logs.add("User " + ((User) observer).getUsername() + " has registered as an observer at " + new Date());
     }
 
     @Override
     public void removeObserver(Observer observer) {
         observers.remove((User) observer);
+        logs.add("User " + ((User) observer).getUsername() + " has removed as an observer at " + new Date());
     }
 
     @Override
@@ -258,6 +260,11 @@ public class Campaign implements Subject{
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    @Override
+    public Iterator<String> createLogsIterator() {
+        return logs.iterator();
     }
 
 }

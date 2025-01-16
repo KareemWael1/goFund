@@ -32,15 +32,26 @@
         <li class="nav-item" th:if="${user.getUserType().getValue() == 0}">
             <a class="nav-link" data-bs-toggle="tab" href="#userManagement">User Management</a>
         </li>
+        <li class="nav-item" th:if="${user.getUserType().getValue() == 0}">
+            <a class="nav-link" data-bs-toggle="tab" href="#logs">Session Logs</a>
+        </li>
         <li class="nav-item" th:if="${user.getUserType().getValue() <= 1}">
             <a class="nav-link" data-bs-toggle="tab" href="#campaignManagement">Campaign Management</a>
         </li>
         <li class="nav-item" th:if="${user.getUserType().getValue() <= 2}">
             <a class="nav-link active" data-bs-toggle="tab" href="#commentsManagement">Comments Management</a>
         </li>
+
     </ul>
 
     <div class="tab-content mt-3">
+        <div id="logs" class="tab-pane fade show" th:if="${user.getUserType().getValue() == 0}">
+            <h3>Logs</h3>
+            <ul class="list-group">
+                <li class="list-group-item" th:each="log : ${logs}" th:text="${log}"></li>
+            </ul>
+        </div>
+
         <div id="userManagement" class="tab-pane fade" th:if="${user.getUserType().getValue() == 0}">
             <h3>User Management</h3>
             <!-- User management table with delete and change type options -->
@@ -163,6 +174,8 @@
                 </tbody>
             </table>
         </div>
+
+
     </div>
 </div>
 
