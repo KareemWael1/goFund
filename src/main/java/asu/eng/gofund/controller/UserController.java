@@ -127,7 +127,7 @@ public class UserController implements ErrorController {
     public RedirectView deleteUser(@PathVariable Long id, @RequestParam("redirectURI") String redirectURI,
             @CurrentUser User currentUser) {
         User user = userRepo.findById(id).orElse(null);
-        if (user.getUserType().comparePredefinedTypes(UserType.PredefinedType.ADMIN)) {
+        if (currentUser.getUserType().comparePredefinedTypes(UserType.PredefinedType.ADMIN)) {
             user.setDeleted(true);
             userRepo.save(user);
             return new RedirectView(redirectURI);
@@ -142,7 +142,7 @@ public class UserController implements ErrorController {
             @RequestParam("redirectURI") String redirectURI, @CurrentUser User currentUser) {
         User user = userRepo.findById(id).orElse(null);
         UserType newUserType = userTypeRepo.findByName(userType);
-        if (user.getUserType().comparePredefinedTypes(UserType.PredefinedType.ADMIN) && newUserType != null) {
+        if (currentUser.getUserType().comparePredefinedTypes(UserType.PredefinedType.ADMIN) && newUserType != null) {
             user.setUserType(newUserType);
             userRepo.save(user);
             return coreView.redirectTo(redirectURI);
