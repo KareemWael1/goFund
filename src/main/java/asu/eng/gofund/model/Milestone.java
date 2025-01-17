@@ -43,62 +43,6 @@ public class Milestone {
     }
 
     // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public double getTargetAmount() {
-        return targetAmount;
-    }
-
-    public void setTargetAmount(double targetAmount) {
-        this.targetAmount = targetAmount;
-    }
-
-    public double getCurrentFunds() {
-        return currentFunds;
-    }
-
-    public void setCurrentFunds(double currentFunds) {
-        this.currentFunds = currentFunds;
-    }
-
-    public Milestone getParent() {
-        return parent;
-    }
-
-    public void setParent(Milestone parent) {
-        this.parent = parent;
-    }
-
-    public List<Milestone> getChildren() {
-        return children;
-    }
-
-    public void setChildren(List<Milestone> children) {
-        this.children = children;
-    }
-
-    public Campaign getCampaign() {
-        return campaign;
-    }
-
-    public void setCampaign(Campaign campaign) {
-        this.campaign = campaign;
-    }
-
     // Utility Methods
     public void addChild(Milestone child) {
         child.setParent(this);

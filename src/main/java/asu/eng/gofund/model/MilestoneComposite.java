@@ -43,7 +43,4 @@ public class MilestoneComposite implements MilestoneComponent {
     public List<MilestoneComponent> getChildren() {
         return children;
     }
-    public String getName() {
-        return name;
-    }
 }

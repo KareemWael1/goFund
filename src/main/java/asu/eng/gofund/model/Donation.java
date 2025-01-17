@@ -54,77 +54,6 @@ public abstract class Donation {
         this(null, donorId, amount, campaignId, donationDate, currency, isRefunded, paymentStrategy);
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getDonorId() {
-        return donorId;
-    }
-
-    public void setDonorId(Long donorId) {
-        this.donorId = donorId;
-    }
-
-    public double getAmount() {
-        return amount;
-    }
-
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
-
-    public void setCredentials(Map<String, String> credentials){
-        this.credentials = credentials;
-    }
-
-    public Map<String, String> getCredentials(){
-        return credentials;
-    }
-
-    public Long getCampaignId() {
-        return campaignId;
-    }
-
-    public void setCampaignId(Long campaignId) {
-        this.campaignId = campaignId;
-    }
-
-    public LocalDateTime getDonationDate() {
-        return donationDate;
-    }
-
-    public void setDonationDate(LocalDateTime donationDate) {
-        this.donationDate = donationDate;
-    }
-
-    public CustomCurrency getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(CustomCurrency currency) {
-        this.currency = currency;
-    }
-
-    public boolean isRefunded() {
-        return isRefunded;
-    }
-
-    public void setRefunded(boolean refunded) {
-        isRefunded = refunded;
-    }
-
-    public String getPaymentStrategy(){
-        return paymentStrategy;
-    }
-
-    public void setPaymentStrategy(String paymentStrategy){
-        this.paymentStrategy = paymentStrategy;
-    }
 
     public static IPaymentStrategy createPaymentStrategyFactory(String paymentStrategy){
         switch (paymentStrategy.toLowerCase().replaceAll(" ", "")){
@@ -162,10 +91,6 @@ public abstract class Donation {
                 ", isRefunded=" + isRefunded +
                 ", paymentStrategy=" + paymentStrategy +
                 '}';
-    }
-
-    public void setState(IDonationState state){
-        this.ref = state;
     }
 
     public void executeNextState(){
