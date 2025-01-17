@@ -1,10 +1,8 @@
 package asu.eng.gofund.controller;
 
 import asu.eng.gofund.annotations.CurrentUser;
-import asu.eng.gofund.model.Campaign;
+import asu.eng.gofund.model.*;
 import asu.eng.gofund.model.Commenting.CommandExecutor;
-import asu.eng.gofund.model.User;
-import asu.eng.gofund.model.UserType;
 import asu.eng.gofund.repo.CampaignRepo;
 import asu.eng.gofund.repo.CommentRepo;
 import asu.eng.gofund.repo.DonationRepo;
@@ -18,9 +16,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class ControlPanelController {
@@ -51,6 +49,7 @@ public class ControlPanelController {
         model.addAttribute("userTypes", userTypeRepo.findAll());
 
         if (user.getUserType().comparePredefinedTypes(UserType.PredefinedType.ADMIN)) {
+            model.addAttribute("donationStats", calculateDonationStats());
             model.addAttribute("users", userRepo.findAllByDeletedFalse());
             model.addAttribute("campaigns", campaignRepo.findAllByDeletedFalseOrderByIdAsc());
             model.addAttribute("comments", commentRepo.findAllByIsDeletedFalseOrderByIdAsc());
@@ -81,6 +80,68 @@ public class ControlPanelController {
             logs.add(iterator1.next());
         }
         return logs;
+    }
+
+    private Map<String, Object> calculateDonationStats() {
+        Map<String, Object> stats = new HashMap<>();
+        List<Donation> donations = donationRepo.findAll();
+
+        // Total donations and amounts
+        stats.put("totalDonations", donations.size());
+        double totalAmount = donations.stream()
+                .mapToDouble(Donation::getAmount)
+                .sum();
+        stats.put("totalAmount", String.format("%.2f", totalAmount));
+        stats.put("averageDonation", String.format("%.2f",
+                donations.isEmpty() ? 0 : totalAmount / donations.size()));
+
+
+
+        // Payment method distribution
+        Map<String, Long> paymentMethods = donations.stream()
+                .collect(Collectors.groupingBy(
+                        Donation::getPaymentStrategy,
+                        Collectors.counting()
+                ));
+        stats.put("paymentMethods", paymentMethods);
+
+
+        // Monthly donations
+        Map<String, Double> monthlyDonations = donations.stream()
+                .collect(Collectors.groupingBy(
+                        d -> d.getDonationDate().format(DateTimeFormatter.ofPattern("MMM yyyy")),
+                        Collectors.summingDouble(Donation::getAmount)
+                ));
+        stats.put("monthlyDonations", monthlyDonations);
+
+
+        // Top donors
+        Map<Long, Double> topDonors = donations.stream()
+                .collect(Collectors.groupingBy(
+                        Donation::getDonorId,
+                        Collectors.summingDouble(Donation::getAmount)
+                ))
+                .entrySet().stream()
+                .sorted(Map.Entry.<Long, Double>comparingByValue().reversed())
+                .limit(5)
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new
+                ));
+        stats.put("topDonors", topDonors);
+
+
+        // Currency distribution
+        Map<CustomCurrency, Long> currencyDistribution = donations.stream()
+                .collect(Collectors.groupingBy(
+                        Donation::getCurrency,
+                        Collectors.counting()
+                ));
+        stats.put("currencyDistribution", currencyDistribution);
+
+        return stats;
     }
 
 }

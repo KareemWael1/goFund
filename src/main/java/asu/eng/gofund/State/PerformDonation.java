@@ -2,7 +2,6 @@ package asu.eng.gofund.State;
 
 import asu.eng.gofund.controller.Payment.IPaymentStrategy;
 import asu.eng.gofund.model.Donation;
-import org.springframework.beans.factory.annotation.Configurable;
 
 
 public class PerformDonation implements IDonationState {
@@ -22,7 +21,7 @@ public class PerformDonation implements IDonationState {
     public void ExecuteState(Donation donation) {
 
         IPaymentStrategy strategy;
-        strategy = Donation.createPaymentStrategyFactory(donation.getpaymentStrategy());
+        strategy = Donation.createPaymentStrategyFactory(donation.getPaymentStrategy());
         donation.executePayment(strategy, donation.getCredentials(), donation.getAmount());
     }
 }
