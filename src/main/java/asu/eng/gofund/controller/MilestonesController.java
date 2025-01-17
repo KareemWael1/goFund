@@ -49,15 +49,16 @@ public class MilestonesController {
         newMilestone.setName(name);
         newMilestone.setCampaign(campaignRepo.findCampaignByIdAndDeletedFalse(campaignId));
         newMilestone.setParent(parentId != null ? milestonesRepo.findMilestoneById(parentId) : null);
-        newMilestone.setTargetAmount(targetAmount);
         if ("LEAF".equals(type)) {
             newMilestone.setCurrentFunds(0);
+            newMilestone.setTargetAmount(targetAmount);
         } else {
-            newMilestone.setCurrentFunds(0);
+            newMilestone.setTargetAmount(0);
         }
 
         // Save the new milestone
         milestonesRepo.save(newMilestone);
+
 
         // Redirect back to the milestones page
         return "redirect:/milestones/" + campaignId;
