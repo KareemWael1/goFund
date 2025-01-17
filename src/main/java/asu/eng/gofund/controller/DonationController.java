@@ -6,6 +6,7 @@ import asu.eng.gofund.controller.Payment.USD2EGPConverter;
 import asu.eng.gofund.model.*;
 import asu.eng.gofund.repo.CampaignRepo;
 import asu.eng.gofund.repo.DonationRepo;
+import asu.eng.gofund.repo.MilestonesRepo;
 import asu.eng.gofund.repo.UserRepo;
 import asu.eng.gofund.view.CampaignView;
 import asu.eng.gofund.view.CoreView;
@@ -37,6 +38,9 @@ public class DonationController {
 
     @Autowired
     private UserRepo userRepo;
+
+    @Autowired
+    private MilestonesRepo milestonesRepo;
 
     DonationView donationView = new DonationView();
     CoreView coreView = new CoreView();
@@ -92,6 +96,8 @@ public class DonationController {
             donationRepo.save(donation);
             campaign.donate(decoratedDonation.getAmount());
             campaignRepo.save(campaign);
+            // add the donation amount to the milestones
+            addDonationToMileStones(campaignId, decoratedDonation);
             EmailNotificationService emailNotificationService = new EmailNotificationService();
             emailNotificationService.sendNotification(userRepo.findById(campaign.getStarterId()).get().getEmail(),"Donation Successful", campaign.getName(), amount);
             SMSNotificationService smsNotification = new SMSNotificationService();
@@ -100,6 +106,23 @@ public class DonationController {
         } else {
             model.addAttribute("error", "An error occurred while making the donation.");
             return coreView.showErrorPage();
+        }
+    }
+
+    private void addDonationToMileStones(Long campaignId, Donation decoratedDonation) {
+        List<Milestone> milestones = milestonesRepo.getAllByCampaignId(campaignId);
+        double tempAmount = decoratedDonation.getAmount();
+        for (Milestone milestone : milestones) {
+            if (tempAmount <= 0) break;
+            double remainingAmount = milestone.getTargetAmount() - milestone.getCurrentFunds();
+            if (tempAmount >= remainingAmount) {
+                milestone.setCurrentFunds(milestone.getTargetAmount());
+                tempAmount -= remainingAmount;
+            } else {
+                milestone.setCurrentFunds(milestone.getCurrentFunds() + tempAmount);
+                tempAmount = 0;
+            }
+            milestonesRepo.save(milestone);
         }
     }
 
