@@ -81,6 +81,7 @@ public class UserController implements ErrorController {
 
         if (createdUser != null) {
             createdUser.setUserType(userTypeRepo.findByName(UserType.PredefinedType.BASIC.getName()));
+            userRepo.save(createdUser);
             return authView.redirectToLogin();
         } else {
             return authView.showRegisterPage();
