@@ -59,7 +59,7 @@ public class DonationController {
                          @RequestParam(required = false) String fawryCode,
                          @RequestParam(required = false) String fawryAccount,
                          @RequestParam(required = false) String fawryPassword
-    ) {
+    ){
         IPaymentStrategy strategy;
         try {
             strategy = Donation.createPaymentStrategyFactory(paymentStrategy);
@@ -67,7 +67,6 @@ public class DonationController {
             model.addAttribute("error", "Invalid payment strategy");
             return coreView.showErrorPage();
         }
-
         CustomCurrency selectedCurrency = CustomCurrency.getCurrency(currency);
         if (regularDonation == null) {
             regularDonation = false;
@@ -75,10 +74,10 @@ public class DonationController {
         if (donationType == null) {
             donationType = "personal";
         }
-
         LocalDateTime donationDate = LocalDateTime.now();
         Donation donation = Donation.createDonationFactory(donationType, userId, amount, campaignId, donationDate, selectedCurrency, false, paymentStrategy, campaignStarterId, regularDonation);
         Campaign campaign = campaignRepo.findById(donation.getCampaignId()).get();
+
         Donation decoratedDonation = handleDifferentCurrency(donation, campaign, false);
 
         Map<String, String> credentials = new HashMap<>();

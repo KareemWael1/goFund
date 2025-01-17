@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Milestone Details</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .milestone-details {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 20px;
+      white-space: pre-wrap; /* Preserve spaces and newlines */
+      font-family: monospace; /* Use monospace font for consistent spacing */
+      line-height: 1.6;
+    }
+    .add-milestone-form {
+      margin-top: 20px;
+      padding: 20px;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .add-milestone-form input,
+    .add-milestone-form select {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .add-milestone-form button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .add-milestone-form button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const milestoneType = document.getElementById('milestoneType');
+      const targetAmount = document.querySelector('input[name="targetAmount"]');
+
+      function toggleTargetAmountField() {
+        if (milestoneType.value === 'LEAF') {
+          targetAmount.style.display = 'block';
+        } else {
+          targetAmount.style.display = 'none';
+        }
+      }
+
+      milestoneType.addEventListener('change', toggleTargetAmountField);
+      // Call the function once to set initial state
+      toggleTargetAmountField();
+    });
+  </script>
+</head>
+<body>
+<h1>Milestones for Campaign <span th:text="${campaignId}">1</span></h1>
+
+<!-- Render the milestone details as preformatted text -->
+<pre class="milestone-details" th:text="${milestoneDetails}"></pre>
+
+<!-- Form to add a new milestone -->
+<div class="add-milestone-form">
+  <h2>Add New Milestone</h2>
+  <form th:action="@{/milestones/{campaignId}/addMilestone(campaignId=${campaignId})}" method="post">
+    <input type="text" name="name" placeholder="Milestone Name" required>
+    <input type="number" name="targetAmount" placeholder="Target Amount" min="0" step="0.01" style="display: none;">
+    <select name="type" required id="milestoneType">
+      <option value="COMPOSITE">Composite Milestone</option>
+      <option value="LEAF">Leaf Milestone</option>
+    </select>
+    <select name="parentId">
+      <option th:each="milestone : ${allMilestones}"
+              th:value="${milestone.id}"
+              th:text="${milestone.name}"></option>
+    </select>
+    <button type="submit">Add Milestone</button>
+  </form>
+</div>
+</body>
+</html>
