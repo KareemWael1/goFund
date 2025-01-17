@@ -44,6 +44,11 @@
   <p><strong>Target Amount:</strong> <span th:text="${campaign.targetAmount}"></span></p>
   <p><strong>Current Amount:</strong> <span th:text="${campaign.currentAmount}"></span></p>
   <p><strong>Percentage Funded:</strong> <span th:text="${percentage}">0</span>%</p>
+  <p><strong>Address:</strong>
+    <span th:each="address : ${campaign.addresses}">
+        <span th:text="${address.name}"></span><br />
+    </span>
+  </p>
   <p><strong>Start Date:</strong> <span th:text="${#dates.format(campaign.startDate, 'yyyy-MM-dd')}"></span></p>
   <p><strong>End Date:</strong> <span th:text="${#dates.format(campaign.endDate, 'yyyy-MM-dd')}"></span></p>
   <a href="/campaign" class="btn btn-primary">Back to Campaigns</a>

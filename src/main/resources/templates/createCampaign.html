@@ -71,6 +71,16 @@
         </div>
         <div class="row mb-3">
             <div class="col">
+                <label for="address" class="form-label">Address</label>
+                <select class="form-control" id="address" name="address">
+                    <option th:each="address : ${addresses}"
+                            th:value="${address.id}"
+                            th:text="${address.name}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col">
                 <label for="targetAmount" class="form-label">Target Amount</label>
                 <input type="number" class="form-control" id="targetAmount" name="targetAmount" required>
             </div>

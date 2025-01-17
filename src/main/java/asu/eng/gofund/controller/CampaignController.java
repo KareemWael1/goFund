@@ -10,12 +10,10 @@ import asu.eng.gofund.model.Sorting.CampaignSorter;
 import asu.eng.gofund.model.Sorting.SortByMostBacked;
 import asu.eng.gofund.model.Sorting.SortByMostRecent;
 import asu.eng.gofund.model.Sorting.SortByOldest;
-import asu.eng.gofund.repo.CampaignCategoryRepo;
-import asu.eng.gofund.repo.CampaignRepo;
-import asu.eng.gofund.repo.DonationRepo;
-import asu.eng.gofund.repo.UserRepo;
+import asu.eng.gofund.repo.*;
 import asu.eng.gofund.view.CampaignView;
 import asu.eng.gofund.view.CoreView;
+import org.antlr.v4.runtime.tree.pattern.ParseTreePattern;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -46,6 +44,9 @@ public class CampaignController {
     private UserRepo userRepo;
     @Autowired
     private CommentController commentController;
+
+    @Autowired
+    private AddressRepo addressRepo;
 
     CampaignView campaignView = new CampaignView();
     CoreView coreView = new CoreView();
@@ -233,9 +234,16 @@ public class CampaignController {
     @GetMapping("/create")
     public String showCreateCampaignForm(Model model) {
         try {
-            model.addAttribute("categories", campaignCategoryRepo.findAll().stream().map(CampaignCategory::getName)
-                    .collect(Collectors.toList()));
+            // Fetch categories
+            model.addAttribute("categories", campaignCategoryRepo.findAll().stream()
+                    .map(CampaignCategory::getName).collect(Collectors.toList()));
+
+            // Fetch currencies
             model.addAttribute("currencies", CustomCurrency.values());
+
+
+            model.addAttribute("addresses", addressRepo.findAll());
+
             return campaignView.showCreateCampaign();
         } catch (Exception e) {
             return coreView.showErrorPage();
@@ -249,6 +257,7 @@ public class CampaignController {
             @RequestParam("category") String category,
             @RequestParam("currency") Long currency,
             @RequestParam("imageUrl") String imageUrl,
+            @RequestParam("address") Address address,
             @RequestParam("targetAmount") double targetAmount,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate,
             Model model,
@@ -256,6 +265,9 @@ public class CampaignController {
         try {
             Campaign campaign = new Campaign();
             campaign.setName(name);
+            System.out.println(address.getId());
+            System.out.println(address.getName());
+            campaign.setAddresses(Collections.singletonList(address));
             campaign.setDescription(description);
             campaign.setCategory(campaignCategoryRepo.findByName(category));
             campaign.setCurrency(CustomCurrency.getCurrency(currency));
