@@ -161,4 +161,9 @@ public abstract class Donation {
     public void executePrevState(){
         ref.PrevState(this);
     }
+
+    public void executeCurrentState(){
+        ref.ExecuteState(this);
+    }
+
 }
