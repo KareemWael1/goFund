@@ -47,6 +47,7 @@
   <p><strong>Start Date:</strong> <span th:text="${#dates.format(campaign.startDate, 'yyyy-MM-dd')}"></span></p>
   <p><strong>End Date:</strong> <span th:text="${#dates.format(campaign.endDate, 'yyyy-MM-dd')}"></span></p>
   <a href="/campaign" class="btn btn-primary">Back to Campaigns</a>
+  <a th:href="@{/milestones/{id}(id=${campaign.id})}" class="btn btn-primary">View Milestones</a>
 
   <div class="col-md-6 mb-4">
     <br>
