@@ -44,6 +44,8 @@ public class CampaignController {
     private UserRepo userRepo;
     @Autowired
     private CommentController commentController;
+    @Autowired
+    private MilestonesRepo milestonesRepo;
 
     @Autowired
     private AddressRepo addressRepo;
@@ -272,7 +274,14 @@ public class CampaignController {
             campaign.setTargetAmount(targetAmount);
             campaign.setEndDate(endDate);
             campaign.setStarterId(user.getId());
+            // add a root milestone for this campaign
+            Milestone rootMilestone = new Milestone();
+            rootMilestone.setName(name);
+            rootMilestone.setTargetAmount(targetAmount);
+            rootMilestone.setCurrentFunds(0);
+            rootMilestone.setCampaign(campaign);
             campaignRepo.save(campaign);
+            milestonesRepo.save(rootMilestone);
             return campaignView.redirectToCampaign();
         } catch (Exception e) {
             return coreView.showErrorPage();
