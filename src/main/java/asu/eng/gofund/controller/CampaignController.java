@@ -189,7 +189,6 @@ public class CampaignController {
             @PathVariable Long donationId) {
         try {
             double amount = donationController.refundDonation(donationId, campaignId);
-            System.out.println(amount);
             Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(campaignId);
             campaign.refundDonation(amount);
             campaignRepo.save(campaign);
