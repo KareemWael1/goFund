@@ -10,10 +10,7 @@ import asu.eng.gofund.model.Sorting.CampaignSorter;
 import asu.eng.gofund.model.Sorting.SortByMostBacked;
 import asu.eng.gofund.model.Sorting.SortByMostRecent;
 import asu.eng.gofund.model.Sorting.SortByOldest;
-import asu.eng.gofund.repo.CampaignCategoryRepo;
-import asu.eng.gofund.repo.CampaignRepo;
-import asu.eng.gofund.repo.DonationRepo;
-import asu.eng.gofund.repo.UserRepo;
+import asu.eng.gofund.repo.*;
 import asu.eng.gofund.view.CampaignView;
 import asu.eng.gofund.view.CoreView;
 import org.springframework.http.MediaType;
@@ -46,6 +43,8 @@ public class CampaignController {
     private UserRepo userRepo;
     @Autowired
     private CommentController commentController;
+    @Autowired
+    private MilestonesRepo milestonesRepo;
 
     CampaignView campaignView = new CampaignView();
     CoreView coreView = new CoreView();
@@ -263,7 +262,14 @@ public class CampaignController {
             campaign.setTargetAmount(targetAmount);
             campaign.setEndDate(endDate);
             campaign.setStarterId(user.getId());
+            // add a root milestone for this campaign
+            Milestone rootMilestone = new Milestone();
+            rootMilestone.setName(name);
+            rootMilestone.setTargetAmount(targetAmount);
+            rootMilestone.setCurrentFunds(0);
+            rootMilestone.setCampaign(campaign);
             campaignRepo.save(campaign);
+            milestonesRepo.save(rootMilestone);
             return campaignView.redirectToCampaign();
         } catch (Exception e) {
             return coreView.showErrorPage();
