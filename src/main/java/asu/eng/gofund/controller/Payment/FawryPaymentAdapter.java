@@ -7,7 +7,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import com.google.gson.Gson;
 
 public class FawryPaymentAdapter implements IPaymentAdapter {
     private static final String apiUrl = "https://atfawry.fawrystaging.com/ECommerceWeb/Fawry/payments/charge";
@@ -23,9 +22,7 @@ public class FawryPaymentAdapter implements IPaymentAdapter {
             params.put("currency", paymentInfo.getOrDefault("currency", "EGP"));
             params.put("description", "Fawry Payment");
 
-            Gson gson = new Gson();
-            String jsonInputString = gson.toJson(params);
-            String response = sendPostRequest(apiUrl, jsonInputString);
+            String response = sendPostRequest(apiUrl, params.toString());
 
             if (response.contains("\"status\":\"success\"")) {
                 return true;
