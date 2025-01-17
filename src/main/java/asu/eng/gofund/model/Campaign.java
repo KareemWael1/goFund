@@ -1,5 +1,9 @@
 package asu.eng.gofund.model;
 
+import asu.eng.gofund.CampaignStates.Closed;
+import asu.eng.gofund.CampaignStates.Completed;
+import asu.eng.gofund.CampaignStates.ICampaignState;
+import asu.eng.gofund.CampaignStates.Open;
 import jakarta.persistence.*;
 
 import java.util.*;
@@ -36,15 +40,18 @@ public class Campaign implements Subject, IIterator {
     private User user;
     @Transient
     private static final ArrayList<String> logs = new ArrayList<>();
+    @Transient
+    private ICampaignState state;
 
     public Campaign() {
         super();
+        state = new Open();
     }
 
     public Campaign(String name, String description) {
         this.name = name;
         this.description = description;
-
+        state = new Open();
     }
 
     public Campaign(Long id, String name, String description, String imageUrl,
@@ -66,6 +73,7 @@ public class Campaign implements Subject, IIterator {
         this.endDate = endDate;
         this.currentAmount = currentAmount;
         this.targetAmount = targetAmount;
+        state = new Open();
     }
 
     public Campaign(boolean isDeleted, String name, String description, String imageUrl,
@@ -86,17 +94,57 @@ public class Campaign implements Subject, IIterator {
         this.endDate = endDate;
         this.currentAmount = currentAmount;
         this.targetAmount = targetAmount;
+        state = new Open();
+    }
 
+    @PostLoad
+    private void initializeState() {
+        if (status == null) {
+            state = new Open();
+            status = state.getStateValue();
+            return;
+        }
+        if (status == 0) {
+            state = new Open();
+        } else if (status == 1) {
+            state = new Closed();
+        } else if (status == 2) {
+            state = new Completed();
+        } else {
+            state = new Open();
+        }
     }
 
     public Set<User> getObservers() {
         return observers;
     }
 
+
+
     public void donate(double amount) {
-        this.currentAmount += amount;
-        notifyObservers();
-        logs.add("Donation of " + amount + " was made at " + new Date());
+        if(this.state.donate(this, amount)){
+            System.out.println("Donation successful");
+            System.out.println(this.state.getStateName());
+        }
+        else{
+            throw new IllegalStateException("Cannot donate to campaign in " + state.getStateName() + " state");
+        }
+    }
+
+    public void setState(ICampaignState state) {
+        this.state = state;
+        this.status = state.getStateValue();
+    }
+
+    public boolean closeCampaign() {
+        this.state.close(this);
+        return true;
+    }
+
+
+    public boolean reopenCampaign() {
+        this.state.reopen(this);
+        return true;
     }
 
     public void refundDonation(double amount) {
@@ -150,13 +198,8 @@ public class Campaign implements Subject, IIterator {
         return currentAmount;
     }
 
-    public void setCurrentAmount(Long currentAmount) {
+    public void setCurrentAmount(Double currentAmount) {
         this.currentAmount = currentAmount;
-    }
-
-    public boolean closeCampaign() {
-        setStatus(CampaignStatus.CLOSED);
-        return true;
     }
 
     public void setName(String name) {
@@ -185,6 +228,10 @@ public class Campaign implements Subject, IIterator {
 
     public CampaignStatus getStatus() {
         return CampaignStatus.getStatus(status);
+    }
+
+    public ICampaignState getState() {
+        return state;
     }
 
     public void setStatus(CampaignStatus status) {
