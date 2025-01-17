@@ -59,7 +59,7 @@ public class DonationController {
                          @RequestParam(required = false) String fawryCode,
                          @RequestParam(required = false) String fawryAccount,
                          @RequestParam(required = false) String fawryPassword
-    ){
+    ) {
         IPaymentStrategy strategy;
         try {
             strategy = Donation.createPaymentStrategyFactory(paymentStrategy);
@@ -67,6 +67,7 @@ public class DonationController {
             model.addAttribute("error", "Invalid payment strategy");
             return coreView.showErrorPage();
         }
+
         CustomCurrency selectedCurrency = CustomCurrency.getCurrency(currency);
         if (regularDonation == null) {
             regularDonation = false;
@@ -74,10 +75,10 @@ public class DonationController {
         if (donationType == null) {
             donationType = "personal";
         }
+
         LocalDateTime donationDate = LocalDateTime.now();
         Donation donation = Donation.createDonationFactory(donationType, userId, amount, campaignId, donationDate, selectedCurrency, false, paymentStrategy, campaignStarterId, regularDonation);
         Campaign campaign = campaignRepo.findById(donation.getCampaignId()).get();
-
         Donation decoratedDonation = handleDifferentCurrency(donation, campaign, false);
 
         Map<String, String> credentials = new HashMap<>();
@@ -88,19 +89,15 @@ public class DonationController {
         credentials.put("fawryCode", fawryCode);
         credentials.put("fawryAccount", fawryAccount);
         credentials.put("fawryPassword", fawryPassword);
-        if (decoratedDonation.executePayment(strategy, credentials, amount)) {
-            donationRepo.save(donation);
-            campaign.donate(decoratedDonation.getAmount());
-            campaignRepo.save(campaign);
-            EmailNotificationService emailNotificationService = new EmailNotificationService();
-            emailNotificationService.sendNotification(userRepo.findById(campaign.getStarterId()).get().getEmail(),"Donation Successful", campaign.getName(), amount);
-            SMSNotificationService smsNotification = new SMSNotificationService();
-            smsNotification.sendNotification(userRepo.findById(campaign.getStarterId()).get().getPhoneNumber(), "Donation Successful", campaign.getName(), amount);
-            return campaignView.redirectToCampaignWithID(campaignId);
-        } else {
-            model.addAttribute("error", "An error occurred while making the donation.");
-            return coreView.showErrorPage();
-        }
+        decoratedDonation.setCredentials(credentials);
+
+        decoratedDonation.executeCurrentState();
+        decoratedDonation.executeNextState();
+        decoratedDonation.executeCurrentState();
+        decoratedDonation.executeNextState();
+        decoratedDonation.executeCurrentState();
+
+        return campaignView.redirectToCampaignWithID(campaignId);
     }
 
     private Donation handleDifferentCurrency(Donation donation, Campaign campaign, boolean refunding) {

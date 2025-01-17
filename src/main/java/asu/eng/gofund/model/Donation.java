@@ -1,6 +1,7 @@
 package asu.eng.gofund.model;
 
 import asu.eng.gofund.State.IDonationState;
+import asu.eng.gofund.State.PerformDonation;
 import asu.eng.gofund.controller.Payment.CreditCardPayment;
 import asu.eng.gofund.controller.Payment.FawryPayment;
 import asu.eng.gofund.controller.Payment.IPaymentStrategy;
@@ -27,9 +28,13 @@ public abstract class Donation {
     protected String paymentStrategy;
 
     @Transient
+    private Map<String, String> credentials;
+
+    @Transient
     public IDonationState ref;
 
     public Donation() {
+        this.ref = new PerformDonation();
     }
 
     public Donation(Long id, Long donorId, double amount, Long campaignId, LocalDateTime donationDate, CustomCurrency currency, boolean isRefunded, String paymentStrategy) {
@@ -41,6 +46,7 @@ public abstract class Donation {
         this.currency = currency;
         this.isRefunded = isRefunded;
         this.paymentStrategy = paymentStrategy;
+        this.ref = new PerformDonation();
     }
 
 
@@ -70,6 +76,14 @@ public abstract class Donation {
 
     public void setAmount(double amount) {
         this.amount = amount;
+    }
+
+    public void setCredentials(Map<String, String> credentials){
+        this.credentials = credentials;
+    }
+
+    public Map<String, String> getCredentials(){
+        return credentials;
     }
 
     public Long getCampaignId() {

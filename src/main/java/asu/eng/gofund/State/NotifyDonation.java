@@ -5,16 +5,19 @@ import asu.eng.gofund.controller.SMSNotificationService;
 import asu.eng.gofund.model.Donation;
 import asu.eng.gofund.repo.CampaignRepo;
 import asu.eng.gofund.repo.UserRepo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import asu.eng.gofund.util.SpringContext;
 
-@Component
-public class DonationClosed implements IDonationState{
-    @Autowired
+
+public class NotifyDonation implements IDonationState{
+
     private UserRepo userRepo;
-    @Autowired
+
     private CampaignRepo campaignRepo;
+
+    public NotifyDonation() {
+        this.campaignRepo  = SpringContext.getCampaignRepo();
+        this.userRepo   = SpringContext.getUserRepo();
+    }
 
     @Override
     public void NextState(Donation donation) {
