@@ -72,6 +72,8 @@
     </form>
   </div>
 
+  <p><strong>Campaign Status:</strong> <span th:text="${campaign.getState().getStateName()}"></span></p>
+
   <div class="mt-3">
     <form th:action="@{|/campaign/${campaign.id}/subscribe|}" method="post" th:if="${!subscribed}">
       <button type="submit" class="btn btn-success">Subscribe</button>
