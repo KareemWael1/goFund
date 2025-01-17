@@ -199,7 +199,7 @@ public class CampaignController {
     }
 
     @PostMapping("/{campaignId}/subscribe")
-    public ResponseEntity<String> subscribeToCampaign(
+    public String subscribeToCampaign(
             @PathVariable Long campaignId,
             @CurrentUser User user) {
 
@@ -208,14 +208,14 @@ public class CampaignController {
             User currUser = userRepo.findById(user.getId()).get();
             currUser.subscribe(campaign);
             campaignRepo.save(campaign);
-            return ResponseEntity.ok("User subscribed to campaign successfully");
+            return "redirect:/campaign/" + campaignId;
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Subscription failed " + e.getMessage());
+            return coreView.showErrorPage();
         }
     }
 
     @PostMapping("/{campaignId}/unsubscribe")
-    public ResponseEntity<String> unsubscribeFromCampaign(
+    public String unsubscribeFromCampaign(
             @PathVariable Long campaignId,
             @CurrentUser User user) {
 
@@ -224,9 +224,9 @@ public class CampaignController {
             User currUser = userRepo.findById(user.getId()).get();
             currUser.unsubscribe(campaign);
             campaignRepo.save(campaign);
-            return ResponseEntity.ok("User unsubscribed from campaign successfully");
+            return "redirect:/campaign/" + campaignId;
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Unsubscription failed " + e.getMessage());
+            return coreView.showErrorPage();
         }
     }
 
