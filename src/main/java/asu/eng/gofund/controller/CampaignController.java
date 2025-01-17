@@ -277,7 +277,7 @@ public class CampaignController {
             // add a root milestone for this campaign
             Milestone rootMilestone = new Milestone();
             rootMilestone.setName(name);
-            rootMilestone.setTargetAmount(targetAmount);
+            rootMilestone.setTargetAmount(0);
             rootMilestone.setCurrentFunds(0);
             rootMilestone.setCampaign(campaign);
             campaignRepo.save(campaign);
