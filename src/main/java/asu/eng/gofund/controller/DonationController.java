@@ -6,7 +6,6 @@ import asu.eng.gofund.controller.Payment.USD2EGPConverter;
 import asu.eng.gofund.model.*;
 import asu.eng.gofund.repo.CampaignRepo;
 import asu.eng.gofund.repo.DonationRepo;
-import asu.eng.gofund.repo.MilestonesRepo;
 import asu.eng.gofund.repo.UserRepo;
 import asu.eng.gofund.view.CampaignView;
 import asu.eng.gofund.view.CoreView;
@@ -39,8 +38,6 @@ public class DonationController {
     @Autowired
     private UserRepo userRepo;
 
-
-
     DonationView donationView = new DonationView();
     CoreView coreView = new CoreView();
     CampaignView campaignView = new CampaignView();
@@ -62,7 +59,7 @@ public class DonationController {
                          @RequestParam(required = false) String fawryCode,
                          @RequestParam(required = false) String fawryAccount,
                          @RequestParam(required = false) String fawryPassword
-    ) {
+    ){
         IPaymentStrategy strategy;
         try {
             strategy = Donation.createPaymentStrategyFactory(paymentStrategy);
@@ -70,7 +67,6 @@ public class DonationController {
             model.addAttribute("error", "Invalid payment strategy");
             return coreView.showErrorPage();
         }
-
         CustomCurrency selectedCurrency = CustomCurrency.getCurrency(currency);
         if (regularDonation == null) {
             regularDonation = false;
@@ -78,10 +74,10 @@ public class DonationController {
         if (donationType == null) {
             donationType = "personal";
         }
-
         LocalDateTime donationDate = LocalDateTime.now();
         Donation donation = Donation.createDonationFactory(donationType, userId, amount, campaignId, donationDate, selectedCurrency, false, paymentStrategy, campaignStarterId, regularDonation);
         Campaign campaign = campaignRepo.findById(donation.getCampaignId()).get();
+
         Donation decoratedDonation = handleDifferentCurrency(donation, campaign, false);
 
         Map<String, String> credentials = new HashMap<>();
@@ -102,8 +98,6 @@ public class DonationController {
 
         return campaignView.redirectToCampaignWithID(campaignId);
     }
-
-
 
     private Donation handleDifferentCurrency(Donation donation, Campaign campaign, boolean refunding) {
         if (campaign.getCurrency() == CustomCurrency.USD && donation.getCurrency() == CustomCurrency.EGP) {

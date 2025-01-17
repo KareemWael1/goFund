@@ -10,10 +10,12 @@ import asu.eng.gofund.model.Sorting.CampaignSorter;
 import asu.eng.gofund.model.Sorting.SortByMostBacked;
 import asu.eng.gofund.model.Sorting.SortByMostRecent;
 import asu.eng.gofund.model.Sorting.SortByOldest;
-import asu.eng.gofund.repo.*;
+import asu.eng.gofund.repo.CampaignCategoryRepo;
+import asu.eng.gofund.repo.CampaignRepo;
+import asu.eng.gofund.repo.DonationRepo;
+import asu.eng.gofund.repo.UserRepo;
 import asu.eng.gofund.view.CampaignView;
 import asu.eng.gofund.view.CoreView;
-import org.antlr.v4.runtime.tree.pattern.ParseTreePattern;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -44,11 +46,6 @@ public class CampaignController {
     private UserRepo userRepo;
     @Autowired
     private CommentController commentController;
-    @Autowired
-    private MilestonesRepo milestonesRepo;
-
-    @Autowired
-    private AddressRepo addressRepo;
 
     CampaignView campaignView = new CampaignView();
     CoreView coreView = new CoreView();
@@ -191,6 +188,7 @@ public class CampaignController {
             @PathVariable Long donationId) {
         try {
             double amount = donationController.refundDonation(donationId, campaignId);
+            System.out.println(amount);
             Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(campaignId);
             campaign.refundDonation(amount);
             campaignRepo.save(campaign);
@@ -235,16 +233,9 @@ public class CampaignController {
     @GetMapping("/create")
     public String showCreateCampaignForm(Model model) {
         try {
-            // Fetch categories
-            model.addAttribute("categories", campaignCategoryRepo.findAll().stream()
-                    .map(CampaignCategory::getName).collect(Collectors.toList()));
-
-            // Fetch currencies
+            model.addAttribute("categories", campaignCategoryRepo.findAll().stream().map(CampaignCategory::getName)
+                    .collect(Collectors.toList()));
             model.addAttribute("currencies", CustomCurrency.values());
-
-
-            model.addAttribute("addresses", addressRepo.findAll());
-
             return campaignView.showCreateCampaign();
         } catch (Exception e) {
             return coreView.showErrorPage();
@@ -258,7 +249,6 @@ public class CampaignController {
             @RequestParam("category") String category,
             @RequestParam("currency") Long currency,
             @RequestParam("imageUrl") String imageUrl,
-            @RequestParam("address") Address address,
             @RequestParam("targetAmount") double targetAmount,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate,
             Model model,
@@ -266,7 +256,6 @@ public class CampaignController {
         try {
             Campaign campaign = new Campaign();
             campaign.setName(name);
-            campaign.setAddresses(Collections.singletonList(address));
             campaign.setDescription(description);
             campaign.setCategory(campaignCategoryRepo.findByName(category));
             campaign.setCurrency(CustomCurrency.getCurrency(currency));
@@ -274,48 +263,8 @@ public class CampaignController {
             campaign.setTargetAmount(targetAmount);
             campaign.setEndDate(endDate);
             campaign.setStarterId(user.getId());
-            // add a root milestone for this campaign
-            Milestone rootMilestone = new Milestone();
-            rootMilestone.setName(name);
-            rootMilestone.setTargetAmount(0);
-            rootMilestone.setCurrentFunds(0);
-            rootMilestone.setCampaign(campaign);
             campaignRepo.save(campaign);
-            milestonesRepo.save(rootMilestone);
             return campaignView.redirectToCampaign();
-        } catch (Exception e) {
-            return coreView.showErrorPage();
-        }
-
-
-
-    }
-
-    @PostMapping("/{campaignId}/close")
-    public String closeCampaign(@PathVariable Long campaignId, @CurrentUser User user) {
-        try {
-            Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(campaignId);
-            if (campaign.getStarterId().equals(user.getId())) {
-                campaign.closeCampaign();
-                campaignRepo.save(campaign);
-                return campaignView.redirectToCampaignWithID(campaignId);
-            }
-            return coreView.showErrorPage();
-        } catch (Exception e) {
-            return coreView.showErrorPage();
-        }
-    }
-
-    @PostMapping("/{campaignId}/reopen")
-    public String reopenCampaign(@PathVariable Long campaignId, @CurrentUser User user) {
-        try {
-            Campaign campaign = campaignRepo.findCampaignByIdAndDeletedFalse(campaignId);
-            if (campaign.getStarterId().equals(user.getId())) {
-                campaign.reopenCampaign();
-                campaignRepo.save(campaign);
-                return campaignView.redirectToCampaignWithID(campaignId);
-            }
-            return coreView.showErrorPage();
         } catch (Exception e) {
             return coreView.showErrorPage();
         }
