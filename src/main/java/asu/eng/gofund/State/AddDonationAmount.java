@@ -7,10 +7,17 @@ public class AddDonationAmount implements IDonationState {
     @Override
     public void NextState(Donation donation) {
 
+        donation.setState(new DonationClosed());
     }
 
     @Override
     public void PrevState(Donation donation) {
 
     }
+
+    @Override
+    public void ExecuteState(Donation donation) {
+
+    }
+
 }
