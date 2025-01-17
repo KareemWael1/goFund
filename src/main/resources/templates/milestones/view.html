@@ -1,44 +1,3 @@
-<!--<!DOCTYPE html>-->
-<!--<html xmlns:th="http://www.thymeleaf.org">-->
-<!--<head>-->
-<!--  <meta charset="UTF-8">-->
-<!--  <title>Milestone Details</title>-->
-<!--  <style>-->
-<!--    body {-->
-<!--      font-family: Arial, sans-serif;-->
-<!--      background-color: #f4f4f4;-->
-<!--      margin: 0;-->
-<!--      padding: 20px;-->
-<!--    }-->
-<!--    h1 {-->
-<!--      color: #333;-->
-<!--      margin-bottom: 20px;-->
-<!--    }-->
-<!--    .milestone-details {-->
-<!--      background-color: #fff;-->
-<!--      border: 1px solid #ddd;-->
-<!--      border-radius: 5px;-->
-<!--      padding: 20px;-->
-<!--      white-space: pre-wrap; /* Preserve newlines and spaces */-->
-<!--      font-family: monospace; /* Use monospace font for better readability */-->
-<!--      line-height: 1.6;-->
-<!--    }-->
-<!--    .milestone-details strong {-->
-<!--      color: #007bff; /* Blue color for milestone names */-->
-<!--    }-->
-<!--    .milestone-details .progress {-->
-<!--      color: #28a745; /* Green color for progress */-->
-<!--    }-->
-<!--  </style>-->
-<!--</head>-->
-<!--<body>-->
-<!--<h1>Milestones for Campaign <span th:text="${campaignId}">1</span></h1>-->
-
-<!--&lt;!&ndash; Display the milestone details &ndash;&gt;-->
-<!--<div class="milestone-details" th:utext="${milestoneDetails}"></div>-->
-<!--</body>-->
-<!--</html>-->
-
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -92,6 +51,24 @@
       background-color: #0056b3;
     }
   </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const milestoneType = document.getElementById('milestoneType');
+      const targetAmount = document.querySelector('input[name="targetAmount"]');
+
+      function toggleTargetAmountField() {
+        if (milestoneType.value === 'LEAF') {
+          targetAmount.style.display = 'block';
+        } else {
+          targetAmount.style.display = 'none';
+        }
+      }
+
+      milestoneType.addEventListener('change', toggleTargetAmountField);
+      // Call the function once to set initial state
+      toggleTargetAmountField();
+    });
+  </script>
 </head>
 <body>
 <h1>Milestones for Campaign <span th:text="${campaignId}">1</span></h1>
@@ -104,13 +81,12 @@
   <h2>Add New Milestone</h2>
   <form th:action="@{/milestones/{campaignId}/addMilestone(campaignId=${campaignId})}" method="post">
     <input type="text" name="name" placeholder="Milestone Name" required>
-    <input type="number" name="targetAmount" placeholder="Target Amount" min="0" step="0.01"> <!-- New field -->
-    <select name="type" required>
+    <input type="number" name="targetAmount" placeholder="Target Amount" min="0" step="0.01" style="display: none;">
+    <select name="type" required id="milestoneType">
       <option value="COMPOSITE">Composite Milestone</option>
       <option value="LEAF">Leaf Milestone</option>
     </select>
     <select name="parentId">
-      <option value="">No Parent (Top-Level)</option>
       <option th:each="milestone : ${allMilestones}"
               th:value="${milestone.id}"
               th:text="${milestone.name}"></option>
