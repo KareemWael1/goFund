@@ -1,7 +1,7 @@
 package asu.eng.gofund.State;
 
-import asu.eng.gofund.controller.EmailNotificationService;
-import asu.eng.gofund.controller.SMSNotificationService;
+import asu.eng.gofund.services.EmailNotificationService;
+import asu.eng.gofund.services.SMSNotificationService;
 import asu.eng.gofund.model.Donation;
 import asu.eng.gofund.repo.CampaignRepo;
 import asu.eng.gofund.repo.UserRepo;

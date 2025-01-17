@@ -1,7 +1,6 @@
 package asu.eng.gofund.model;
 
-import asu.eng.gofund.controller.EmailNotificationService;
-import asu.eng.gofund.controller.SMSNotificationService;
+import asu.eng.gofund.services.EmailNotificationService;
 import asu.eng.gofund.util.DatabaseUtil;
 import jakarta.persistence.*;
 import org.hibernate.proxy.HibernateProxy;

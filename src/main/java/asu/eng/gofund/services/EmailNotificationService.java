@@ -1,14 +1,10 @@
-package asu.eng.gofund.controller;
-
-import asu.eng.gofund.services.EmailFacade;
-import asu.eng.gofund.services.NotificationTemplate;
+package asu.eng.gofund.services;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 import javax.mail.MessagingException;
-import java.util.Objects;
 
 public class EmailNotificationService extends NotificationTemplate {
 

@@ -5,7 +5,7 @@ public abstract class NotificationTemplate {
 
     protected String body = "";
     protected String subject = "";
-    // Template method (final to prevent overriding)
+
     public final void sendNotification(String recipient, String subject, String campaignName, Double amount) {
         prepareMessage(subject, campaignName, amount);
         sendMessage(recipient);

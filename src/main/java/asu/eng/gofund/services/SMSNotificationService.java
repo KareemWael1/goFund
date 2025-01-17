@@ -1,7 +1,4 @@
-package asu.eng.gofund.controller;
-
-import asu.eng.gofund.services.NotificationTemplate;
-import asu.eng.gofund.services.SMSFacade;
+package asu.eng.gofund.services;
 
 public class SMSNotificationService extends NotificationTemplate {
 
