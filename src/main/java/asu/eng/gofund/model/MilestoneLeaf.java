@@ -21,7 +21,7 @@ public class MilestoneLeaf implements MilestoneComponent {
 
     @Override
     public String displayDetails(String indentation) {
-        return indentation + name + " Progress: " + getProgress() + "%\n";
+        return indentation + name + " Collected : " + currentFunds + " Out of " + targetAmount +  "\n";
     }
 
     @Override
