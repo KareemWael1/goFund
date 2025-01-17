@@ -3,8 +3,7 @@ package asu.eng.gofund.model;
 public enum CampaignStatus {
     OPEN,
     CLOSED,
-    CANCELLED,
-    PENDING;
+    COMPLETED;
 
     public Long getValue() {
         return (long) this.ordinal();
