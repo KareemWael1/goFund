@@ -4,6 +4,7 @@ import asu.eng.gofund.controller.EmailNotificationService;
 import asu.eng.gofund.controller.SMSNotificationService;
 import asu.eng.gofund.util.DatabaseUtil;
 import jakarta.persistence.*;
+import org.hibernate.proxy.HibernateProxy;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 
@@ -191,10 +192,19 @@ public class User implements Observer {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof User user) {
-            return this.id.equals(user.id);
+        if (this == obj) return true;
+        if (!(obj instanceof User)) return false;
+
+        // Handle Hibernate proxies
+        User user;
+        if (obj instanceof HibernateProxy) {
+            user = (User) ((HibernateProxy) obj).getHibernateLazyInitializer()
+                    .getImplementation();
+        } else {
+            user = (User) obj;
         }
-        return false;
+
+        return id != null && id.equals(user.getId());
     }
 
     @Override
