@@ -50,14 +50,12 @@ public class Campaign implements Subject, IIterator {
 
     public Campaign() {
         super();
-        observers = new ArrayList<>();
         state = new Open();
     }
 
     public Campaign(String name, String description) {
         this.name = name;
         this.description = description;
-        observers = new ArrayList<>();
         state = new Open();
     }
 
@@ -80,7 +78,6 @@ public class Campaign implements Subject, IIterator {
         this.endDate = endDate;
         this.currentAmount = currentAmount;
         this.targetAmount = targetAmount;
-        observers = new ArrayList<>();
         this.state = state;
     }
 
@@ -102,7 +99,6 @@ public class Campaign implements Subject, IIterator {
         this.endDate = endDate;
         this.currentAmount = currentAmount;
         this.targetAmount = targetAmount;
-        observers = new ArrayList<>();
         this.state = state;
     }
 
@@ -118,8 +114,6 @@ public class Campaign implements Subject, IIterator {
         } else if (status == 1) {
             state = new Closed();
         } else if (status == 2) {
-            state = new Cancelled();
-        } else if (status == 3) {
             state = new Completed();
         } else {
             state = new Open();
@@ -193,11 +187,6 @@ public class Campaign implements Subject, IIterator {
 
     public void setCurrentAmount(double currentAmount) {
         this.currentAmount = currentAmount;
-    }
-
-    public boolean refundDonation(Long donationDetailsId) {
-        //TODO: Implement this method
-        return false;
     }
 
     public boolean closeCampaign() {

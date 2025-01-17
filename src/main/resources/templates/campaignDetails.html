@@ -59,8 +59,9 @@
           th:if="${campaign.getState().getStateName() != 'Closed' && campaign.getState().getStateName() != 'Completed'}">
       <button type="submit" class="btn btn-primary">Close Campaign</button>
     </form>
+    <br>
     <form th:action="@{|/campaign/${campaign.id}/reopen|}" method="post"
-          th:if="${campaign.getState().getStateName() == 'Closed' || campaign.getState().getStateName() == 'Cancelled'}">
+          th:if="${campaign.getState().getStateName() == 'Closed'}">
       <button type="submit" class="btn btn-primary">Reopen Campaign</button>
     </form>
   </div>

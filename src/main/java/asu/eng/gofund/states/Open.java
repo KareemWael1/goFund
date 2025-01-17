@@ -28,6 +28,11 @@ public class Open implements ICampaignState{
     }
 
     @Override
+    public boolean approve(Campaign campaign) {
+        return false;
+    }
+
+    @Override
     public long getStateValue() {
         return CampaignStatus.OPEN.getValue();
     }

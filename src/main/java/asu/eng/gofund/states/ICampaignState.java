@@ -6,6 +6,7 @@ public interface ICampaignState {
     boolean donate(Campaign campaign, double amount);
     boolean close(Campaign campaign);
     boolean reopen(Campaign campaign);
+    boolean approve(Campaign campaign);
     long getStateValue();
 
     String getStateName();

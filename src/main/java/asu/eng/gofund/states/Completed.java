@@ -20,6 +20,11 @@ public class Completed implements ICampaignState{
     }
 
     @Override
+    public boolean approve(Campaign campaign) {
+        return false;
+    }
+
+    @Override
     public long getStateValue() {
         return CampaignStatus.COMPLETED.getValue();
     }
