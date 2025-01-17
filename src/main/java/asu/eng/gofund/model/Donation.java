@@ -118,7 +118,7 @@ public abstract class Donation {
         isRefunded = refunded;
     }
 
-    public String getpaymentStrategy(){
+    public String getPaymentStrategy(){
         return paymentStrategy;
     }
 
