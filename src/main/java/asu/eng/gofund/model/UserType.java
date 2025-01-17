@@ -21,13 +21,6 @@ public class UserType {
             this.id = id;
         }
 
-        public String getName() {
-            return name;
-        }
-
-        public int getId() {
-            return id;
-        }
     }
 
     @Id
@@ -48,17 +41,7 @@ public class UserType {
         this.id = (long) predefinedType.getId();
     }
 
-    public Long getId() {
-        return id;
-    }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
 
     public boolean compare(UserType userType) {
         return this.id.equals(userType.getId());
