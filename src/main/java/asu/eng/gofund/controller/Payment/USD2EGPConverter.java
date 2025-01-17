@@ -13,16 +13,7 @@ public class USD2EGPConverter extends CurrencyConverterDecorator{
 
     @Override
     public boolean executePayment(IPaymentStrategy paymentStrategy, Map<String, String> paymentInfo, double amount) {
-        if (paymentStrategy instanceof CreditCardPayment) {
-            this.amount = amount * exchangeRate;
-        } else if (paymentStrategy instanceof FawryPayment) {
-            this.amount = amount * exchangeRate;
-        }
-        return decoratedDonation.executePayment(paymentStrategy, paymentInfo, this.amount);
-    }
-
-    @Override
-    public void adjustAmount() {
-        this.setAmount(this.decoratedDonation.getAmount() * exchangeRate);
+        this.decoratedDonation.setAmount(amount * exchangeRate);
+        return decoratedDonation.executePayment(paymentStrategy, paymentInfo, this.decoratedDonation.getAmount());
     }
 }

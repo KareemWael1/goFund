@@ -10,7 +10,6 @@ import asu.eng.gofund.repo.UserRepo;
 import asu.eng.gofund.view.CampaignView;
 import asu.eng.gofund.view.CoreView;
 import asu.eng.gofund.view.DonationView;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,10 +17,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/donate")
@@ -53,8 +50,8 @@ public class DonationController {
                          @RequestParam(required = false) Boolean regularDonation,
                          @RequestParam(required = false) String donationType,
                          @RequestParam(required = false) String cardNumber,
-                         @RequestParam(required = false) String cardHolderName,
-                         @RequestParam(required = false) String expiryDate,
+                         @RequestParam(required = false) String nameOnCard,
+                         @RequestParam(required = false) String expirationDate,
                          @RequestParam(required = false) String cvv,
                          @RequestParam(required = false) String fawryCode,
                          @RequestParam(required = false) String fawryAccount,
@@ -77,39 +74,35 @@ public class DonationController {
         LocalDateTime donationDate = LocalDateTime.now();
         Donation donation = Donation.createDonationFactory(donationType, userId, amount, campaignId, donationDate, selectedCurrency, false, paymentStrategy, campaignStarterId, regularDonation);
         Campaign campaign = campaignRepo.findById(donation.getCampaignId()).get();
-
-        Donation decoratedDonation = handleDifferentCurrency(donation, campaign, false);
+        Donation decoratedDonation = handleDifferentCurrency(donation, campaign);
+        decoratedDonation.setPaymentStrategy(paymentStrategy);
 
         Map<String, String> credentials = new HashMap<>();
         credentials.put("cardNumber", cardNumber);
-        credentials.put("cardHolderName", cardHolderName);
-        credentials.put("expiryDate", expiryDate);
+        credentials.put("cardHolderName", nameOnCard);
+        credentials.put("expiryDate", expirationDate);
         credentials.put("cvv", cvv);
         credentials.put("fawryCode", fawryCode);
         credentials.put("fawryAccount", fawryAccount);
         credentials.put("fawryPassword", fawryPassword);
         decoratedDonation.setCredentials(credentials);
+        decoratedDonation.setAmount(amount);
 
         decoratedDonation.executeCurrentState();
         decoratedDonation.executeNextState();
-        decoratedDonation.executeCurrentState();
-        decoratedDonation.executeNextState();
-        decoratedDonation.executeCurrentState();
+        donation.setState(decoratedDonation.ref);
+        donation.executeCurrentState();
+        donation.executeNextState();
+        donation.executeCurrentState();
 
         return campaignView.redirectToCampaignWithID(campaignId);
     }
 
-    private Donation handleDifferentCurrency(Donation donation, Campaign campaign, boolean refunding) {
+    private Donation handleDifferentCurrency(Donation donation, Campaign campaign) {
         if (campaign.getCurrency() == CustomCurrency.USD && donation.getCurrency() == CustomCurrency.EGP) {
             donation = new EGP2USDConverter(donation);
-            if (refunding) {
-                ((EGP2USDConverter) donation).adjustAmount();
-            }
         } else if (campaign.getCurrency() == CustomCurrency.EGP && donation.getCurrency() == CustomCurrency.USD) {
             donation = new USD2EGPConverter(donation);
-            if (refunding) {
-                ((USD2EGPConverter) donation).adjustAmount();
-            }
         }
         return donation;
     }
@@ -119,7 +112,7 @@ public class DonationController {
         if (Objects.equals(donation.getCampaignId(), campaignId)) {
             donation.setRefunded(true);
             donationRepo.save(donation);
-            Donation decoratedDonation = handleDifferentCurrency(donation, campaignRepo.findById(campaignId).get(), true);
+            Donation decoratedDonation = handleDifferentCurrency(donation, campaignRepo.findById(campaignId).get());
             return decoratedDonation.getAmount();
         }
         throw new IllegalArgumentException("Donation does not belong to the campaign");

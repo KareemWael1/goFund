@@ -118,11 +118,11 @@ public abstract class Donation {
         isRefunded = refunded;
     }
 
-    public String getpaymentStrategy(){
+    public String getPaymentStrategy(){
         return paymentStrategy;
     }
 
-    public void setpaymentStrategy(String paymentStrategy){
+    public void setPaymentStrategy(String paymentStrategy){
         this.paymentStrategy = paymentStrategy;
     }
 
