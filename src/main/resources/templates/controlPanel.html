@@ -292,7 +292,7 @@
 <script th:inline="javascript" th:if="${user.getUserType().getId() <= userTypes.get(0).getId()}">
     document.addEventListener('DOMContentLoaded', function() {
         // Payment Methods Chart
-        const paymentMethodsData = {};
+        const paymentMethodsData = /*[[${donationStats.paymentMethods}]]*/ {};
         new Chart(document.getElementById('paymentMethodsChart'), {
             type: 'pie',
             data: {
@@ -305,7 +305,7 @@
         });
 
         // Monthly Donations Chart
-        const monthlyData = {};
+        const monthlyData = /*[[${donationStats.monthlyDonations}]]*/ {};
         new Chart(document.getElementById('monthlyDonationsChart'), {
             type: 'line',
             data: {
@@ -320,7 +320,7 @@
         });
 
         // Top Donors Chart
-        const topDonorsData = {};
+        const topDonorsData = /*[[${donationStats.topDonors}]]*/ {};
         new Chart(document.getElementById('topDonorsChart'), {
             type: 'bar',
             data: {
@@ -334,7 +334,7 @@
         });
 
         // Currency Distribution Chart
-        const currencyData = {};
+        const currencyData = /*[[${donationStats.currencyDistribution}]]*/ {};
         new Chart(document.getElementById('currencyDistributionChart'), {
             type: 'pie',
             data: {
