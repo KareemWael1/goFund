@@ -5,7 +5,7 @@ import asu.eng.gofund.model.Donation;
 import java.util.Map;
 
 public class USD2EGPConverter extends CurrencyConverterDecorator{
-    private final double exchangeRate = 50;
+    private final double exchangeRate = Double.parseDouble(System.getenv("USD_TO_EGP"));
 
     public USD2EGPConverter(Donation decoratedDonation) {
         super(decoratedDonation);
