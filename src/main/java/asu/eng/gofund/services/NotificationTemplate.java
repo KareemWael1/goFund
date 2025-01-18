@@ -7,7 +7,7 @@ public abstract class NotificationTemplate {
     protected String subject = "";
 
     public final void sendNotification(String recipient, String subject, String campaignName, Double amount) {
-        boolean flag = validateAmount(amount,subject);
+        boolean flag = validateMessage(amount,subject);
         if (!flag){return;}
         prepareMessage(subject, campaignName, amount);
         sendMessage(recipient);
@@ -17,7 +17,7 @@ public abstract class NotificationTemplate {
 
     protected abstract void sendMessage(String recipient);
 
-    protected final boolean validateAmount(Double amount, String subject){
+    protected final boolean validateMessage(Double amount, String subject){
         if (amount < 0){
             return false;
         }
