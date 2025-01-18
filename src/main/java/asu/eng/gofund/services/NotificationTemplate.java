@@ -17,7 +17,7 @@ public abstract class NotificationTemplate {
 
     protected abstract void sendMessage(String recipient);
 
-    private final boolean validateAmount(Double amount, String subject){
+    protected final boolean validateAmount(Double amount, String subject){
         if (amount < 0){
             return false;
         }
